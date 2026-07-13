@@ -1,7 +1,7 @@
 import {View, Text, TextInput, StyleSheet, TouchableOpacity, Image, TouchableWithoutFeedback, Keyboard, KeyboardAvoidingView, Platform, ScrollView} from 'react-native';
 import { useState } from 'react'
 import { Link, router, Stack } from 'expo-router'
-import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import Ionicons from '@react-native-vector-icons/ionicons'
 
 export default function login(){
@@ -62,15 +62,34 @@ export default function login(){
     const handleShowPassword = () =>{
         setHidePassword(!hidePassword);
     }
+
+    const [errorMessage, setErrorMessage] = useState<string[]>([]);
+    const handleLoginButton = () =>{
+        setErrorMessage([]);
+        if(!loginForm.email || !loginForm.password){
+            setErrorMessage(prev => [...prev, 'All fields needs to be filled']);
+            return;
+        }
+
+        const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
+        if(!emailRegex.test(loginForm.email) && loginForm.email){
+            setErrorMessage(prev => [...prev, "Invalid email"])
+            return;
+        }
+
+
+        const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&$#])[A-Za-z\d@$!%*?&#]{8,50}$/
+        if(!passwordRegex.test(loginForm.password) && loginForm.password){
+            setErrorMessage(prev => [...prev, "Invalid password"]);
+            return;
+        }
+        router.push('/(tabs)/homepage/homepage')
+
+    }
     
 
     return(
         <SafeAreaView style={styles.safeArea}>
-            <Stack.Screen 
-                options ={{
-                    headerShown: false
-                }}
-            />
             <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
                 <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{flex: 1, backgroundColor: '#1E2128FF'}} keyboardVerticalOffset={0}>
                     <ScrollView style={styles.scrollView} contentContainerStyle = {styles.container} keyboardShouldPersistTaps= "handled">
@@ -110,7 +129,10 @@ export default function login(){
                             <View style={{flexDirection: 'row', justifyContent: 'flex-end'}}>
                                 <Text style={{color: '#636AE8FF'}}>Forgot Password?</Text>
                             </View>
-                            <TouchableOpacity style={styles.signInButton}>
+                            <View>
+                                {errorMessage.map((errmsg, idx) => <Text key={idx} style={{color:'red', paddingBottom: 10}}>{errmsg}</Text>)}
+                            </View>
+                            <TouchableOpacity style={styles.signInButton} onPress={handleLoginButton}>
                                 <Text style= {{ color: 'white' }}>Sign In</Text>
                             </TouchableOpacity>
                         </View>
