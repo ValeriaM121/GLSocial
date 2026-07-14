@@ -1,4 +1,4 @@
-import { Tabs, Stack } from 'expo-router'
+import { Tabs } from 'expo-router'
 import { StatusBar } from 'expo-status-bar'
 import React from 'react'
 import Ionicons from '@react-native-vector-icons/ionicons'
