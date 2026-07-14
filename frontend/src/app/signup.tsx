@@ -1,5 +1,5 @@
 import { View, Text, TextInput, StyleSheet, TouchableOpacity, Image, TouchableWithoutFeedback, Keyboard, KeyboardAvoidingView, Platform, ScrollView } from 'react-native'
-import { Link, router, Stack } from 'expo-router'
+import { Link, router } from 'expo-router'
 import { useState } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import Ionicons from '@react-native-vector-icons/ionicons'
@@ -23,8 +23,7 @@ export default function SignUp(){
             gap: 40,
             width: '100%',
             paddingBottom: 40,
-            paddingHorizontal: 20,
-            backgroundColor : '#1E2128FF'
+            paddingHorizontal: 20
 
         },
         textBox:{

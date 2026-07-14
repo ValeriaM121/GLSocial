@@ -10,10 +10,6 @@ export default function login(){
             flex: 1,
             backgroundColor: '#1E2128FF',
         },
-        scrollView:{
-            flex: 1,
-            backgroundColor: '#1E2128FF',
-        },
         container:{
             flexGrow: 1,
             justifyContent: 'space-between',
@@ -21,9 +17,7 @@ export default function login(){
             width: '100%',
             paddingTop: 12,
             paddingBottom: 24,
-            paddingHorizontal: 20,
-            backgroundColor : '#1E2128FF'
-
+            paddingHorizontal: 20
         },
         textBox:{
             flex: 1,
@@ -92,7 +86,7 @@ export default function login(){
         <SafeAreaView style={styles.safeArea}>
             <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
                 <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{flex: 1, backgroundColor: '#1E2128FF'}} keyboardVerticalOffset={0}>
-                    <ScrollView style={styles.scrollView} contentContainerStyle = {styles.container} keyboardShouldPersistTaps= "handled">
+                    <ScrollView contentContainerStyle = {styles.container} keyboardShouldPersistTaps= "handled">
                         <TouchableOpacity onPress={() => router.back()}>
                             <Ionicons name='arrow-back' size={23} color='white'/>
                         </TouchableOpacity>

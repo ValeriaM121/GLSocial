@@ -16,14 +16,13 @@ export default function quizContent(){
             width: '100%',
             paddingTop: 12,
             paddingBottom: 24,
-            paddingHorizontal: 20,
-            backgroundColor : '#1E2128FF'
+            paddingHorizontal: 20
         }
     })
 
     return(
         <SafeAreaView style={styles.safeArea}>
-            <ScrollView style={styles.safeArea} contentContainerStyle = {styles.container}>
+            <ScrollView contentContainerStyle = {styles.container}>
                 <Text> This is user quiz page!</Text>
             </ScrollView>
         </SafeAreaView>

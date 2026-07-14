@@ -97,9 +97,9 @@ const styles = StyleSheet.create({
   },
 });*/
 
-import { Text, View, TouchableOpacity, StyleSheet, TouchableWithoutFeedback, Keyboard } from "react-native";
+import { Text, View, TouchableOpacity, StyleSheet } from "react-native";
 import { Link } from "expo-router";
-import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function Index(){
   const styles = StyleSheet.create({
@@ -107,13 +107,11 @@ export default function Index(){
       flex: 1,
       flexDirection: 'column',
       justifyContent: 'space-between',
-      //gap: 100,
       alignItems: 'center',
       width: '100%',
       paddingTop: 120,
       paddingBottom: 40,
-      paddingHorizontal: 20,
-      backgroundColor : '#1E2128FF',
+      paddingHorizontal: 20
     },
     headerText:{
       color: 'white',
