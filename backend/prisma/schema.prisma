@@ -1,0 +1,88 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User{
+  id                  String @id @default(uuid())
+  username            String @unique
+  email               String @unique
+  password            String
+  confirmPassword     String?
+
+  createdAT           DateTime @default(now())
+
+  watchlistShowsItems WatchlistShowsItem[]
+
+  watchlistMoviesItems WatchlistMoviesItem[]
+}
+
+model Show{
+  id            String @id @default(uuid())
+  title         String
+  overview      String?
+  releaseYear   Int
+  genres        String[] @default([])
+  episodes      Int
+  posterURL     String?
+  createdBy     String
+  createdAt     DateTime @default(now())
+
+  watchlistShowsItems WatchlistShowsItem[]
+}
+
+model Movies{
+  id            String @id @default(uuid())
+  title         String
+  overview      String?
+  releaseYear   Int
+  genres        String[] @default([])
+  runtime       Int?
+  posterURL     String?
+  createdAt     DateTime @default(now())
+
+  watchlistMoviesItems WatchlistMoviesItem[]
+}
+
+enum WatchlistStatus{
+  PLANNED
+  WATCHING
+  COMPLETED
+  DROPPED
+}
+
+model WatchlistShowsItem{
+  id          String @id @default(uuid())
+  userID      String
+  showID      String
+  status      WatchlistStatus @default(PLANNED)
+  rating      Int?
+  notes       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @default(now())
+
+  user User @relation(fields: [userID], references: [id], onDelete: Cascade)
+  show Show @relation(fields: [showID], references: [id], onDelete: Cascade )
+}
+
+model WatchlistMoviesItem{
+  id          String @id @default(uuid())
+  userID      String
+  movieID     String
+  status      WatchlistStatus @default(PLANNED)
+  rating      Int?
+  notes       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @default(now())
+
+  user User @relation(fields: [userID], references: [id], onDelete: Cascade)
+  show Movies @relation(fields: [movieID], references: [id], onDelete: Cascade )
+}
