@@ -1,7 +1,8 @@
 import { View, Text, StyleSheet, ScrollView } from 'react-native'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Link, router, Stack } from 'expo-router'
 import { SafeAreaView } from 'react-native-safe-area-context'
+import * as SecureStore from "expo-secure-store"
 
 export default function quizContent(){
     const styles = StyleSheet.create({
@@ -18,6 +19,21 @@ export default function quizContent(){
             paddingBottom: 24,
             paddingHorizontal: 20
         }
+    });
+    const [token, setToken] = useState<String>("");
+    
+    useEffect(()=>{
+        const loadToken = async() => {
+            const getToken = await SecureStore.getItemAsync('token');
+            if(getToken){
+                setToken(getToken);
+            }
+        };
+        loadToken();
+    },[]);
+
+    useEffect(()=>{
+        
     })
 
     return(

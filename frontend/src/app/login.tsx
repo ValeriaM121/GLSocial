@@ -1,8 +1,10 @@
 import {View, Text, TextInput, StyleSheet, TouchableOpacity, Image, TouchableWithoutFeedback, Keyboard, KeyboardAvoidingView, Platform, ScrollView} from 'react-native';
 import { useState } from 'react'
-import { Link, router, Stack } from 'expo-router'
+import { Link, router } from 'expo-router'
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Ionicons from '@react-native-vector-icons/ionicons'
+import * as SecureStore from "expo-secure-store"
+
 
 export default function login(){
     const styles = StyleSheet.create({
@@ -43,6 +45,14 @@ export default function login(){
             borderRadius: 15,
             backgroundColor: '#f1f2f5',
             paddingRight : 10
+        },
+        loggingInButton:{
+            backgroundColor: 'rgb(95, 101, 199)',
+            borderRadius: 25,
+            height: 40,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center'
         }
 
     })
@@ -53,21 +63,27 @@ export default function login(){
     })
 
     const [hidePassword, setHidePassword] = useState<boolean>(true);
-    const handleShowPassword = () =>{
-        setHidePassword(!hidePassword);
-    }
 
     const [errorMessage, setErrorMessage] = useState<string[]>([]);
-    const handleLoginButton = () =>{
+    const[loading, setLoading] = useState<boolean>(false);
+    //const[token, setToken] = useState<string>('');
+    const baseURL = process.env.EXPO_PUBLIC_API_URL;
+    const [loggingIn, setLoggingIn] = useState<boolean>(false);
+
+    const handleLoginButton = async() =>{
         setErrorMessage([]);
+        setLoggingIn(true);
+
         if(!loginForm.email || !loginForm.password){
             setErrorMessage(prev => [...prev, 'All fields needs to be filled']);
+            setLoggingIn(false);
             return;
         }
 
         const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
         if(!emailRegex.test(loginForm.email) && loginForm.email){
             setErrorMessage(prev => [...prev, "Invalid email"])
+            setLoggingIn(false);
             return;
         }
 
@@ -75,9 +91,34 @@ export default function login(){
         const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&$#])[A-Za-z\d@$!%*?&#]{8,50}$/
         if(!passwordRegex.test(loginForm.password) && loginForm.password){
             setErrorMessage(prev => [...prev, "Invalid password"]);
+            setLoggingIn(false);
             return;
         }
-        router.push('/(tabs)/homepage/homepage')
+
+        try {
+            const response = await fetch(`${baseURL}auth/login`,{
+                method: "POST",
+                headers: { "Content-Type": "application/json"},
+                credentials: "include",
+                body: JSON.stringify({
+                    email: loginForm.email,
+                    password: loginForm.password
+                })
+            });
+
+            const data = await response.json();
+            if(response.ok){
+                await SecureStore.setItemAsync('token', data.token);
+                router.push('/(tabs)/homepage/homepage');
+            }else{
+                setErrorMessage(prev => [...prev, data.message]);
+                setLoggingIn(false);
+                return;
+            }
+        } catch (error) {
+            console.error(`Login Error: ${error}`);
+            setLoggingIn(false);
+        }
 
     }
     
@@ -115,7 +156,7 @@ export default function login(){
                                     onChangeText={(text) => setLoginForm(prev => ({ ...prev, password: text }))}
                                     secureTextEntry={hidePassword}
                                 /> 
-                                <TouchableOpacity onPress={handleShowPassword}>
+                                <TouchableOpacity onPress={()=>setHidePassword(!hidePassword)}>
                                     {hidePassword ? <Ionicons name='eye' size={23} color='black'/> : <Ionicons name='eye-off' size={23} color='black'/>}
                                 </TouchableOpacity>
                             </View>
@@ -126,9 +167,14 @@ export default function login(){
                             <View>
                                 {errorMessage.map((errmsg, idx) => <Text key={idx} style={{color:'red', paddingBottom: 10}}>{errmsg}</Text>)}
                             </View>
-                            <TouchableOpacity style={styles.signInButton} onPress={handleLoginButton}>
+                            {loggingIn ? 
+                            <TouchableOpacity style={styles.loggingInButton} disabled={true}>
                                 <Text style= {{ color: 'white' }}>Sign In</Text>
                             </TouchableOpacity>
+                            :
+                            <TouchableOpacity style={styles.signInButton} onPress={handleLoginButton}>
+                                <Text style= {{ color: 'white' }}>Sign In</Text>
+                            </TouchableOpacity>}
                         </View>
                         <View style={{alignItems:'center', gap: 20}}>
                             <Text style={{color: 'white'}}>Or login with</Text>
