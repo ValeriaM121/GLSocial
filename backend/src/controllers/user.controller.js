@@ -77,7 +77,60 @@ const registerUser = async(req, res) =>{
         
     }catch(error){
         console.error(`Error in registering user: ${error}`);
-        return res.status(400).json({message: `Internal server error`})
+        return res.status(500).json({message: `Internal server error`})
+    }
+}
+
+const googleLogin = async(req, res)=>{
+    try {
+        /* Already have a verification if the token is sent or not within the routes folder
+        const { idToken } = req.body;
+        if(!idToken){
+            return res.status(400).json({message: "There was no token sent"});
+        }*/
+        const googleUser = req.user;
+        const googleId = googleUser.sub;
+
+        let user = await prisma.user.findUnique({
+            where: {email: googleUser.email}
+        });
+
+        let userStatus = false;
+        if(!user){
+            user = await prisma.user.create({
+                data:{
+                    email: googleUser.email,
+                    googleId,
+                    name: googleUser.name,
+                    avatar: googleUser.picture
+                }
+            });
+            userStatus = true;
+        }else if(!user.googleId){ 
+            //If user email already exists in the app it should add googleId and it would link the user to the account with same email when logging in with google
+            user = await prisma.user.update({
+                where: {
+                    id: user.id
+                },
+                data:{
+                    googleId,
+                    name: googleUser.name,
+                    avatar: googleUser.picture
+                }
+            });
+        }
+        //Deal with adding if no googleID meaning that it is within created account from before just add googleID to join account
+
+        const token = generateToken(user.id);
+        return res.status(200).json({
+            message: "User was successful with logging in with Google",
+            isNewUser: userStatus,
+            token
+        });
+        
+    } catch (error) {
+        console.error(`Error with using Google to signup/login: ${error}`)
+        return res.status(500).json("Internal server error")
     }
 }
 
@@ -139,5 +192,5 @@ const logoutUser = async(req,res)=>{
     }
 }
 export{
-    registerUser, loginUser, logoutUser
+    registerUser, loginUser, logoutUser, googleLogin
 };

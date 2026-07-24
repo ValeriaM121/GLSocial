@@ -110,8 +110,7 @@ export default function Index(){
       alignItems: 'center',
       width: '100%',
       paddingTop: 120,
-      paddingBottom: 40,
-      paddingHorizontal: 20
+      paddingBottom: 40
     },
     headerText:{
       color: 'white',
@@ -135,15 +134,6 @@ export default function Index(){
       width:'100%',
       alignItems: 'center',
       gap: 30
-    },
-    buttontext:{
-      color: 'white'
-    },
-    signupText:{
-      color: '#A8ADB7FF'
-    },
-    signupLink:{
-      color: '#636AE8FF'
     }
   })
   return(
@@ -159,11 +149,11 @@ export default function Index(){
         <View style={styles.buttonView}>
           <Link href="/login" push asChild>
             <TouchableOpacity style={styles.loginButton}>
-              <Text style={styles.buttontext}>Login</Text>
+              <Text style={{color:'white'}}>Login</Text>
             </TouchableOpacity>
           </Link>
-          <Text style={styles.signupText}> Don't have an account? <Link href="/signup" push asChild>
-          <Text style={styles.signupLink}>Sign Up</Text>
+          <Text style={{color:"white"}}> Don't have an account? <Link href="/signup" push asChild>
+          <Text style={{color:"#636AE8FF"}}>Sign Up</Text>
           </Link> </Text>
         </View>
       </View>

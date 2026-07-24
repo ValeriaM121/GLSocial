@@ -1,7 +1,8 @@
-import { View, Text, StyleSheet, ScrollView } from 'react-native'
-import { useState } from 'react'
+import { View, Text, StyleSheet, ScrollView, Touchable, TouchableOpacity } from 'react-native'
+import { useState, useEffect } from 'react'
 import { Link, router, Stack } from 'expo-router'
 import { SafeAreaView } from 'react-native-safe-area-context'
+import * as SecureStore from "expo-secure-store"
 
 export default function quizContent(){
     const styles = StyleSheet.create({
@@ -17,13 +18,48 @@ export default function quizContent(){
             paddingTop: 12,
             paddingBottom: 24,
             paddingHorizontal: 20
+        },
+        logoutButton: {
+            backgroundColor: '#636AE8FF',
+            borderRadius: 25,
+            height: 40,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center'
         }
+    });
+    const [token, setToken] = useState<String>("");
+    
+    useEffect(()=>{
+        const loadToken = async() => {
+            const getToken = await SecureStore.getItemAsync('token');
+            if(getToken){
+                setToken(getToken);
+            }
+        };
+        loadToken();
+    },[]);
+
+    useEffect(()=>{
+        
     })
+
+    const handleLogout = async() =>{
+        try {
+            await SecureStore.deleteItemAsync("token");
+            router.replace("/login");
+        } catch (error) {
+            console.log("Failed to clear secure token", error);
+        }
+    }
 
     return(
         <SafeAreaView style={styles.safeArea}>
             <ScrollView contentContainerStyle = {styles.container}>
                 <Text> This is settings page</Text>
+                <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+                    <Text style={{color:"white"}}>Logout</Text>
+                </TouchableOpacity>
             </ScrollView>
         </SafeAreaView>
     )

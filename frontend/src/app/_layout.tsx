@@ -21,8 +21,15 @@ import { Stack } from 'expo-router'
 import { StatusBar } from 'expo-status-bar'
 import React from 'react'
 import { SafeAreaProvider } from 'react-native-safe-area-context'
+import { useEffect } from "react";
+import { GoogleSignin } from '@react-native-google-signin/google-signin';
 
 export default function RootLayout(){
+
+  useEffect(()=>{
+    GoogleSignin.configure({iosClientId: process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID, profileImageSize: 120})
+  },[]);
+
   return(
     <SafeAreaProvider>
       <React.Fragment>
