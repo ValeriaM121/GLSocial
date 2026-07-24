@@ -12,11 +12,15 @@ datasource db {
 }
 
 model User{
-  id                  String @id @default(uuid())
-  username            String @unique
-  email               String @unique
-  password            String
+  id                  String  @id @default(uuid())
+  username            String? @unique
+  email               String  @unique
+  password            String?
   confirmPassword     String?
+  googleId            String? @unique
+  name                String?
+  avatar              String?
+
 
   createdAT           DateTime @default(now())
 

@@ -8,7 +8,8 @@
     "scheme": "GLSocial",
     "userInterfaceStyle": "automatic",
     "ios": {
-      "icon": "./assets/expo.icon"
+      "icon": "./assets/expo.icon",
+      "bundleIdentifier": "com.valeria.glsocial"
     },
     "android": {
       "adaptiveIcon": {
@@ -17,7 +18,8 @@
         "backgroundImage": "./assets/images/android-icon-background.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "package": "com.valeria.glsocial"
     },
     "web": {
       "output": "static",
@@ -34,7 +36,22 @@
         }
       ],
       "@react-native-vector-icons/ionicons",
-      "expo-secure-store"
+      "expo-secure-store",
+      [
+        "@react-native-google-signin/google-signin",
+        {
+          "iosUrlScheme": "com.googleusercontent.apps.835904476176-mfmqdde1kqtdlptbh918jtsnhmvukjfp"
+        }
+      ],
+      [
+        "expo-build-properties",
+        {
+          "ios":{
+            "useFrameworks": "static"
+          }
+        }
+      ]
+
     ],
     "experiments": {
       "typedRoutes": true,

@@ -4,6 +4,7 @@ import { Link, router } from 'expo-router'
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Ionicons from '@react-native-vector-icons/ionicons'
 import * as SecureStore from "expo-secure-store"
+import { GoogleSignin, isErrorWithCode, isSuccessResponse, statusCodes } from "@react-native-google-signin/google-signin"
 
 
 export default function login(){
@@ -69,6 +70,8 @@ export default function login(){
     //const[token, setToken] = useState<string>('');
     const baseURL = process.env.EXPO_PUBLIC_API_URL;
     const [loggingIn, setLoggingIn] = useState<boolean>(false);
+    const [googleSigningUp, setGoogleSigningUp] = useState<boolean>((false));
+    const [googleErrorMessage, setGoogleErrorMessage] = useState<string>("");
 
     const handleLoginButton = async() =>{
         setErrorMessage([]);
@@ -121,6 +124,76 @@ export default function login(){
         }
 
     }
+
+    const handleGoogleSignin = async() =>{
+            setGoogleSigningUp(true);
+            setGoogleErrorMessage('');
+            try {
+                
+                //await GoogleSignin.hasPlayServices();//this is for android (work when get to this)
+                const response = await GoogleSignin.signIn();
+                //console.log(response.data?.idToken);
+                //If user is successful in signing in then it should send Google token to backend
+                if(isSuccessResponse(response)){
+                    //const { idToken } = await GoogleSignin.getTokens();
+                    const idToken = response.data?.idToken;
+                    try{
+                        const backendResponse = await fetch (`${baseURL}auth/loginGoogle`,{
+                            method: 'POST',
+                            headers: {"Content-Type": "application/json"},
+                            credentials: "include",
+                            body: JSON.stringify({
+                                idToken: idToken
+                            })
+                        });
+    
+                        const data = await backendResponse.json();
+                        if(backendResponse.ok){
+                            await SecureStore.setItemAsync('token', data.token);
+                            if(data.isNewUser){
+                                router.push('/quizcontent');
+                            }else{
+                                router.push('/(tabs)/homepage/homepage');
+                            }
+                        }else{
+                            setGoogleErrorMessage(data.message);
+                            setGoogleSigningUp(false);
+                            return;
+                        }
+    
+                    }catch(error){
+                        console.error("Error with logging in with Google");
+                        setGoogleSigningUp(false);
+                    }
+                    
+                }else{
+                    setGoogleSigningUp(false);
+                    setGoogleErrorMessage("Sign in was cancelled by user");
+                }
+            
+    
+            } catch (error) {
+                if(isErrorWithCode(error)){
+                    switch (error.code){
+                        case statusCodes.IN_PROGRESS:
+                            //operation (eg. sign in) already in progress
+                            setGoogleErrorMessage("Google Signin is in progress")
+                            break;
+                        case statusCodes.PLAY_SERVICES_NOT_AVAILABLE:
+                            //This is for android, play services is not available or outdated
+                            break;
+                        default:
+                            //some other error happened
+                            setGoogleErrorMessage(error.code);
+                    }
+                }else{
+                    //an error that's not related to google signin occurred
+                    setGoogleErrorMessage("An error has occurred");
+                }
+                setGoogleSigningUp(false);
+    
+            }
+        }
     
 
     return(
@@ -177,8 +250,19 @@ export default function login(){
                             </TouchableOpacity>}
                         </View>
                         <View style={{alignItems:'center', gap: 20}}>
-                            <Text style={{color: 'white'}}>Or login with</Text>
-                            <Image style={{ height: 30, width: 30}} source={require('./../../assets/images/googleIcon.png')}/>
+                            <Text style={{color:'white'}}>Or login with </Text>
+                            {googleSigningUp ? 
+                                <TouchableOpacity disabled={true}>
+                                    <Image style={{ height: 30, width: 30}} source={require('./../../assets/images/googleIcon.png')}/>
+                                </TouchableOpacity>
+                            :
+                                <TouchableOpacity onPress={handleGoogleSignin}>
+                                    <Image style={{ height: 30, width: 30}} source={require('./../../assets/images/googleIcon.png')}/>
+                                </TouchableOpacity>
+
+                            }
+                            {googleErrorMessage ? <Text style={{color: 'red'}}>{googleErrorMessage} </Text>
+                            : null}
                         </View>
                         <View style={{alignItems: 'center', marginTop: 'auto'}}>
                             <Text style={{color:'white'}}>Don't have an account? <Link style={{color: '#636AE8FF'}} href="/signup" dismissTo>Sign up</Link></Text>
