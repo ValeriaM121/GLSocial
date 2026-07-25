@@ -65,8 +65,8 @@ export default function login(){
 
     const [hidePassword, setHidePassword] = useState<boolean>(true);
 
-    const [errorMessage, setErrorMessage] = useState<string[]>([]);
-    const[loading, setLoading] = useState<boolean>(false);
+    const [errorMessage, setErrorMessage] = useState<string>('');
+    //const[loading, setLoading] = useState<boolean>(false);
     //const[token, setToken] = useState<string>('');
     const baseURL = process.env.EXPO_PUBLIC_API_URL;
     const [loggingIn, setLoggingIn] = useState<boolean>(false);
@@ -74,18 +74,18 @@ export default function login(){
     const [googleErrorMessage, setGoogleErrorMessage] = useState<string>("");
 
     const handleLoginButton = async() =>{
-        setErrorMessage([]);
+        setErrorMessage('');
         setLoggingIn(true);
 
         if(!loginForm.email || !loginForm.password){
-            setErrorMessage(prev => [...prev, 'All fields needs to be filled']);
+            setErrorMessage('All fields needs to be filled');
             setLoggingIn(false);
             return;
         }
 
         const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
         if(!emailRegex.test(loginForm.email) && loginForm.email){
-            setErrorMessage(prev => [...prev, "Invalid email"])
+            setErrorMessage("Invalid email")
             setLoggingIn(false);
             return;
         }
@@ -93,7 +93,7 @@ export default function login(){
 
         const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&$#])[A-Za-z\d@$!%*?&#]{8,50}$/
         if(!passwordRegex.test(loginForm.password) && loginForm.password){
-            setErrorMessage(prev => [...prev, "Invalid password"]);
+            setErrorMessage("Invalid password");
             setLoggingIn(false);
             return;
         }
@@ -111,15 +111,21 @@ export default function login(){
 
             const data = await response.json();
             if(response.ok){
+                setLoginForm({
+                    email: '',
+                    password: ''
+                });
                 await SecureStore.setItemAsync('token', data.token);
                 router.push('/(tabs)/homepage/homepage');
+                setLoggingIn(false);
             }else{
-                setErrorMessage(prev => [...prev, data.message]);
+                setErrorMessage(data.message);
                 setLoggingIn(false);
                 return;
             }
         } catch (error) {
             console.error(`Login Error: ${error}`);
+            setErrorMessage("Something went wrong. Please try again later");
             setLoggingIn(false);
         }
 
@@ -152,8 +158,10 @@ export default function login(){
                             await SecureStore.setItemAsync('token', data.token);
                             if(data.isNewUser){
                                 router.push('/quizcontent');
+                                setGoogleSigningUp(false);
                             }else{
                                 router.push('/(tabs)/homepage/homepage');
+                                setGoogleSigningUp(false);
                             }
                         }else{
                             setGoogleErrorMessage(data.message);
@@ -238,7 +246,8 @@ export default function login(){
                                 <Text style={{color: '#636AE8FF'}}>Forgot Password?</Text>
                             </View>
                             <View>
-                                {errorMessage.map((errmsg, idx) => <Text key={idx} style={{color:'red', paddingBottom: 10}}>{errmsg}</Text>)}
+                                {errorMessage ? <Text style={{color: 'red', paddingBottom: 10}}>{errorMessage}</Text> : null }
+                                {/*{errorMessage.map((errmsg, idx) => <Text key={idx} style={{color:'red', paddingBottom: 10}}>{errmsg}</Text>)}*/}
                             </View>
                             {loggingIn ? 
                             <TouchableOpacity style={styles.loggingInButton} disabled={true}>

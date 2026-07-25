@@ -76,7 +76,7 @@ export default function SignUp(){
     const [hideConfirmPassword, setHideConfirmPassword] = useState<boolean>(true);
    
 
-    const[errorMessage, setErrorMessage] = useState<string[]>([]);
+    const[errorMessage, setErrorMessage] = useState<string>('');
     const baseURL = process.env.EXPO_PUBLIC_API_URL;
     const [signingUp, setSigningUp] = useState<boolean>(false);
     const [googleSigningUp, setGoogleSigningUp] = useState<boolean>((false));
@@ -84,39 +84,40 @@ export default function SignUp(){
     
 
     const handleSignInButton = async() =>{
-        setErrorMessage([]);
+        setErrorMessage('');
         setSigningUp(true);
         
 
         if(!registerForm.username || !registerForm.email || !registerForm.password || !registerForm.confirmPassword){
-            setErrorMessage(prev => [...prev, "All fields needs to be filled"]);
-            setSigningUp(false);
-            return;
-        }
-        const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
-        
-        if(!emailRegex.test(registerForm.email) && registerForm.email){
-            setErrorMessage(prev => [...prev, "Invalid email input"]);
+            setErrorMessage("All fields needs to be filled");
             setSigningUp(false);
             return;
         }
 
-        const usernameRegex = /^[a-z][a-z0-9._]{3,}$/
+        const usernameRegex = /^[a-z][a-z0-9._]{2,}$/
         if(!usernameRegex.test(registerForm.username) && registerForm.username){
-            setErrorMessage(prev => [...prev, "Invalid username (Starts with lowercase and needs to be 3 characters long)"]);
+            setErrorMessage("Invalid username (All lowercase and needs to be 3 characters long)");
+            setSigningUp(false);
+            return;
+        }
+
+        const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
+        
+        if(!emailRegex.test(registerForm.email) && registerForm.email){
+            setErrorMessage("Invalid email input");
             setSigningUp(false);
             return;
         }
 
         if(registerForm.password !== registerForm.confirmPassword){
-            setErrorMessage(prev => [...prev, "Passwords need to match"]);
+            setErrorMessage("Passwords need to match");
             setSigningUp(false);
             return;
         }
 
         const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&$#])[A-Za-z\d@$!%*?&#]{8,50}$/
         if(!passwordRegex.test(registerForm.password) && !passwordRegex.test(registerForm.confirmPassword) && registerForm.password ){
-            setErrorMessage(prev => [...prev, "Password needs to be 8 characters long. Must contain uppercase, lowercase, unique character (@$!%*?&#) and a number"])
+            setErrorMessage("Password needs to be 8 characters long. Must contain uppercase, lowercase, unique character (@$!%*?&#) and a number");
             setSigningUp(false);
             return;
         }
@@ -136,23 +137,32 @@ export default function SignUp(){
             const data = await response.json();
 
             if(response.ok){
+                setRegisterform({
+                    username: '',
+                    email: '',
+                    password: '',
+                    confirmPassword: ''
+                });
+
                 await SecureStore.setItemAsync('token', data.token);
                 router.push('/quizcontent');
+                setSigningUp(false);
             }else{
-                
-                setErrorMessage(prev => [...prev, data.message]);
+                setErrorMessage(data.message);
                 setSigningUp(false);
                 return;
             }
         }catch(error){
             console.error("Error with registering user");
+            setErrorMessage("Something went wrong. Please try again later");
             setSigningUp(false);
         }
     }
 
     const handleGoogleSignin = async() =>{
-        setGoogleSigningUp(true);
+        setGoogleSigningUp(true); 
         setGoogleErrorMessage('');
+
         try {
             
             //await GoogleSignin.hasPlayServices();//this is for android (work when get to this)
@@ -178,11 +188,14 @@ export default function SignUp(){
                     //console.log(data);
                     if(backendResponse.ok){
                         await SecureStore.setItemAsync('token', data.token);
+                        
                         //console.log(data.isNewUser);
                         if(data.isNewUser){
                             router.push('/quizcontent');
+                            setGoogleSigningUp(false);
                         }else{
                             router.push('/(tabs)/homepage/homepage');
+                            setGoogleSigningUp(false);
                         }
                     }else{
                         setGoogleErrorMessage(data.message);
@@ -193,6 +206,7 @@ export default function SignUp(){
                 }catch(error){
                     console.error("Error with logging in with Google");
                     setGoogleSigningUp(false);
+                    setGoogleErrorMessage("Something went wrong when logging into Google");
                 }
                 
             }else{
@@ -217,7 +231,7 @@ export default function SignUp(){
                 }
             }else{
                 //an error that's not related to google signin occurred
-                setGoogleErrorMessage("An error has occurred");
+                setGoogleErrorMessage("An error has occurred. Try later.");
             }
             setGoogleSigningUp(false);
 
@@ -241,6 +255,7 @@ export default function SignUp(){
                             
                                 <Text style={{color: 'white', fontSize: 16}}> Username:</Text>
                                 <TextInput
+                                    autoCapitalize="none"
                                     value={registerForm.username}
                                     placeholder= "Enter Username"
                                     placeholderTextColor='gray'
@@ -290,7 +305,8 @@ export default function SignUp(){
                             </View>
                             
                             <View>
-                                {errorMessage.map((errmsg, idx) => <Text key={idx} style={{color:'red', paddingBottom: 10}}>{errmsg}</Text>)}
+                                {errorMessage ? <Text style={{color:'red', paddingBottom: 10}}>{errorMessage}</Text> : null}
+                                {/*{errorMessage.map((errmsg, idx) => <Text key={idx} style={{color:'red', paddingBottom: 10}}>{errmsg}</Text>)}*/}
                                 {signingUp ? 
                                 <TouchableOpacity style={styles.signingUpButton} disabled={true}>
                                     <Text style= {{ color: 'white' }}>Sign In</Text>
