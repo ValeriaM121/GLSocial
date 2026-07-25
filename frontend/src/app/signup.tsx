@@ -6,13 +6,30 @@ import Ionicons from '@react-native-vector-icons/ionicons'
 import * as SecureStore from "expo-secure-store"
 import { GoogleSignin, isErrorWithCode, isSuccessResponse, statusCodes } from "@react-native-google-signin/google-signin"
 
+type formtype = {username: string, email: string, password: string, confirmPassword: string};
+    
+const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+const usernameRegex =  /^[a-z][a-z0-9._]{2,}$/;
+const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&$#])[A-Za-z\d@$!%*?&#]{8,50}$/;
+    
+export const validateRegister = (form: formtype) =>{
+    if(!form.username || !form.email || !form.password || !form.confirmPassword){
+        return "All fields needs to be filled";
+    }
+    if(!usernameRegex.test(form.username)){
+        return "Invalid username (All lowercase and needs to be 3 characters long)";
+    }
+    if(!emailRegex.test(form.email)){
+        return "Invalid email input";
+    }
+    if(!passwordRegex.test(form.password)){
+        return "Password needs to be 8 characters long. Must contain uppercase, lowercase, unique character (@$!%*?&#) and a number";
+    }
+    if(form.password !== form.confirmPassword){
+        return "Password must match";
+    }
+}
 
-/*
-
-    TO DO:
-     - Add user input checks
-     - Add Backend API
-*/
 
 export default function SignUp(){
     const styles = StyleSheet.create({
@@ -63,8 +80,7 @@ export default function SignUp(){
             justifyContent: 'center'
         }
     })
-    
-    type formtype = {username: string, email: string, password: string, confirmPassword: string};
+
     const[registerForm, setRegisterform] = useState<formtype> ({
         username: '',
         email:'',
@@ -86,41 +102,14 @@ export default function SignUp(){
     const handleSignInButton = async() =>{
         setErrorMessage('');
         setSigningUp(true);
+
+        const validateError = validateRegister(registerForm);
+        if(validateError){
+            setSigningUp(false);
+            setErrorMessage(validateError);
+            return;
+        }
         
-
-        if(!registerForm.username || !registerForm.email || !registerForm.password || !registerForm.confirmPassword){
-            setErrorMessage("All fields needs to be filled");
-            setSigningUp(false);
-            return;
-        }
-
-        const usernameRegex = /^[a-z][a-z0-9._]{2,}$/
-        if(!usernameRegex.test(registerForm.username) && registerForm.username){
-            setErrorMessage("Invalid username (All lowercase and needs to be 3 characters long)");
-            setSigningUp(false);
-            return;
-        }
-
-        const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
-        
-        if(!emailRegex.test(registerForm.email) && registerForm.email){
-            setErrorMessage("Invalid email input");
-            setSigningUp(false);
-            return;
-        }
-
-        if(registerForm.password !== registerForm.confirmPassword){
-            setErrorMessage("Passwords need to match");
-            setSigningUp(false);
-            return;
-        }
-
-        const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&$#])[A-Za-z\d@$!%*?&#]{8,50}$/
-        if(!passwordRegex.test(registerForm.password) && !passwordRegex.test(registerForm.confirmPassword) && registerForm.password ){
-            setErrorMessage("Password needs to be 8 characters long. Must contain uppercase, lowercase, unique character (@$!%*?&#) and a number");
-            setSigningUp(false);
-            return;
-        }
         try{
             const response = await fetch(`${baseURL}auth/register`,{
                 method: "POST",

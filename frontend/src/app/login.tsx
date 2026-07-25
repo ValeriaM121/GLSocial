@@ -6,6 +6,23 @@ import Ionicons from '@react-native-vector-icons/ionicons'
 import * as SecureStore from "expo-secure-store"
 import { GoogleSignin, isErrorWithCode, isSuccessResponse, statusCodes } from "@react-native-google-signin/google-signin"
 
+type formtype = {email: string, password: string};
+    
+const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&$#])[A-Za-z\d@$!%*?&#]{8,50}$/;
+    
+export const validateLogin = (form: formtype) =>{
+    if(!form.email || !form.password){
+        return "All fields needs to be filled";
+    }
+    if(!emailRegex.test(form.email)){
+        return "Invalid email input";
+    }
+    if(!passwordRegex.test(form.password)){
+        return "Invalid Password";
+    }
+}
+
 
 export default function login(){
     const styles = StyleSheet.create({
@@ -77,23 +94,9 @@ export default function login(){
         setErrorMessage('');
         setLoggingIn(true);
 
-        if(!loginForm.email || !loginForm.password){
-            setErrorMessage('All fields needs to be filled');
-            setLoggingIn(false);
-            return;
-        }
-
-        const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
-        if(!emailRegex.test(loginForm.email) && loginForm.email){
-            setErrorMessage("Invalid email")
-            setLoggingIn(false);
-            return;
-        }
-
-
-        const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&$#])[A-Za-z\d@$!%*?&#]{8,50}$/
-        if(!passwordRegex.test(loginForm.password) && loginForm.password){
-            setErrorMessage("Invalid password");
+        const loginValidate = validateLogin(loginForm);
+        if(loginValidate){
+            setErrorMessage(loginValidate);
             setLoggingIn(false);
             return;
         }
