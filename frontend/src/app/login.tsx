@@ -24,7 +24,7 @@ export const validateLogin = (form: formtype) =>{
 }*/
 
 
-export default function login(){
+export default function Login(){
     const styles = StyleSheet.create({
         safeArea:{
             flex: 1,
@@ -222,8 +222,9 @@ export default function login(){
                         <View style={{gap: 10, width: '100%'}}>
                             <Text style={{color: 'white', fontSize: 16}}> Email:</Text>
                             <TextInput
+                                testID="email-input"
                                 value={loginForm.email}
-                                placeholder= "Enter email"
+                                placeholder= "Enter Email"
                                 placeholderTextColor='gray'
                                 onChangeText={(text) => setLoginForm(prev => ({ ...prev, email: text }))}
                                 keyboardType="email-address"
@@ -233,6 +234,7 @@ export default function login(){
                             <Text style={{color: 'white', fontSize: 16}}> Password:</Text>
                             <View style={styles.showPass}>
                                 <TextInput
+                                    testID="password-input"
                                     style = {styles.textBox}
                                     value={loginForm.password}
                                     placeholder= "Enter Password"
@@ -257,7 +259,7 @@ export default function login(){
                                 <Text style= {{ color: 'white' }}>Sign In</Text>
                             </TouchableOpacity>
                             :
-                            <TouchableOpacity style={styles.signInButton} onPress={handleLoginButton}>
+                            <TouchableOpacity style={styles.signInButton} testID="login-button" onPress={handleLoginButton}>
                                 <Text style= {{ color: 'white' }}>Sign In</Text>
                             </TouchableOpacity>}
                         </View>
@@ -268,7 +270,7 @@ export default function login(){
                                     <Image style={{ height: 30, width: 30}} source={require('../../assets/images/googleIcon.png')}/>
                                 </TouchableOpacity>
                             :
-                                <TouchableOpacity onPress={handleGoogleSignin}>
+                                <TouchableOpacity testID="googlebutton" onPress={handleGoogleSignin}>
                                     <Image style={{ height: 30, width: 30}} source={require('../../assets/images/googleIcon.png')}/>
                                 </TouchableOpacity>
 
@@ -277,7 +279,7 @@ export default function login(){
                             : null}
                         </View>
                         <View style={{alignItems: 'center', marginTop: 'auto'}}>
-                            <Text style={{color:'white'}}>Don't have an account? <Link style={{color: '#636AE8FF'}} href="/signup" dismissTo>Sign up</Link></Text>
+                            <Text style={{color:'white'}}>Don't have an account? <Link style={{color: '#636AE8FF'}} href="/signup" testID="signup-link" dismissTo>Sign up</Link></Text>
                         </View>
                     </ScrollView>
                 </KeyboardAvoidingView>

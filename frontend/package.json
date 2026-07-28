@@ -54,7 +54,10 @@
     "postinstall": "patch-package"
   },
   "jest": {
-    "preset": "jest-expo"
+    "preset": "jest-expo",
+    "moduleNameMapper": {
+      "^@react-native-google-signin/google-signin$": "<rootDir>/src/mocks/googleSignin.ts"
+    }
   },
   "private": true
 }

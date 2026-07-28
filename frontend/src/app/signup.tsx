@@ -303,7 +303,7 @@ export default function SignUp(){
                                 <TouchableOpacity style={styles.signingUpButton} disabled={true}>
                                     <Text style= {{ color: 'white' }}>Sign In</Text>
                                 </TouchableOpacity> :
-                                <TouchableOpacity style={styles.signInButton} onPress={handleSignInButton}>
+                                <TouchableOpacity style={styles.signInButton} testID="signup-button" onPress={handleSignInButton}>
                                     <Text style= {{ color: 'white' }}>Sign In</Text>
                                 </TouchableOpacity> }
                             </View>
@@ -315,7 +315,7 @@ export default function SignUp(){
                                     <Image style={{ height: 30, width: 30}} source={require('../../assets/images/googleIcon.png')}/>
                                 </TouchableOpacity>
                             :
-                                <TouchableOpacity onPress={handleGoogleSignin}>
+                                <TouchableOpacity testID="googlebutton" onPress={handleGoogleSignin}>
                                     <Image style={{ height: 30, width: 30}} source={require('../../assets/images/googleIcon.png')}/>
                                 </TouchableOpacity>
 
@@ -325,7 +325,7 @@ export default function SignUp(){
                             
                         </View>
                         <View style={{alignItems: 'center',  marginTop: 'auto'}}>
-                            <Text style={{color: 'white'}}>Already have an account? <Link href='/login' style={{ color: '#636AE8FF'}} dismissTo>Login</Link> </Text>
+                            <Text style={{color: 'white'}}>Already have an account? <Link href='/login' testID="login-link" style={{ color: '#636AE8FF'}} dismissTo>Login</Link> </Text>
                         </View>
                     </ScrollView>
                 </KeyboardAvoidingView>

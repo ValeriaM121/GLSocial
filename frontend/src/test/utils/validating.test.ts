@@ -1,7 +1,7 @@
-import { validateRegister } from "../../utils/validRegistration";
-import { validateLogin } from "../../utils/validateLogin";
+import { validateRegister } from "@/utils/validRegistration";
+import { validateLogin } from "@/utils/validateLogin";
 import { render } from "@testing-library/react-native"
-import  Index  from "../../app/index"
+import  Index  from "@/app/index"
 
 describe("validateRegister", () => {
     it("returns error when fields are empty", () =>{
@@ -13,9 +13,6 @@ describe("validateRegister", () => {
         });
         expect(result).toBe("All fields needs to be filled");
     });
-});
-
-describe("validateRegister", () => {
     it("returns error when username is incorrect", () =>{
         const result = validateRegister({
             username: "ye",
@@ -24,11 +21,7 @@ describe("validateRegister", () => {
             confirmPassword: "e"
         });
         expect(result).toBe("Invalid username (All lowercase and needs to be 3 characters long)")
-    })
-})
-
-
-describe("validateRegister", () => {
+    });
     it("returns error when email is incorrect", () =>{
         const result = validateRegister({
             username: "test",
@@ -38,9 +31,6 @@ describe("validateRegister", () => {
         });
         expect(result).toBe("Invalid email input")
     });
-});
-
-describe("validateRegister", () => {
     it("returns error when password isn't strong enough" , () =>{
         const result = validateRegister({
             username: "test",
@@ -50,9 +40,6 @@ describe("validateRegister", () => {
         });
         expect(result).toBe("Password needs to be 8 characters long. Must contain uppercase, lowercase, unique character (@$!%*?&#) and a number")
     });
-});
-
-describe("validateRegister", () => {
     it("returns error when password doesn't match" , () =>{
         const result = validateRegister({
             username: "test",
@@ -72,15 +59,11 @@ describe("validateLogin", () => {
         });
         expect(result).toBe("All fields needs to be filled")
     });
-});
-
-describe("validateLogin", () => {
     it("returns error when invalid email is put in" , () =>{
         const result = validateLogin({
-            email: "test",
+            email: "testgmail.com",
             password: "hi"
         });
         expect(result).toBe("Invalid email input")
     });
 });
-
