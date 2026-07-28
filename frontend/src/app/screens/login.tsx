@@ -5,8 +5,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import Ionicons from '@react-native-vector-icons/ionicons'
 import * as SecureStore from "expo-secure-store"
 import { GoogleSignin, isErrorWithCode, isSuccessResponse, statusCodes } from "@react-native-google-signin/google-signin"
-
-type formtype = {email: string, password: string};
+import { validateLogin } from "../utils/validateLogin"
+/*type formtype = {email: string, password: string};
     
 const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&$#])[A-Za-z\d@$!%*?&#]{8,50}$/;
@@ -21,7 +21,7 @@ export const validateLogin = (form: formtype) =>{
     if(!passwordRegex.test(form.password)){
         return "Invalid Password";
     }
-}
+}*/
 
 
 export default function login(){
@@ -119,7 +119,7 @@ export default function login(){
                     password: ''
                 });
                 await SecureStore.setItemAsync('token', data.token);
-                router.push('/(tabs)/homepage/homepage');
+                router.push('/screens/(tabs)/homepage/homepage');
                 setLoggingIn(false);
             }else{
                 setErrorMessage(data.message);
@@ -160,10 +160,10 @@ export default function login(){
                         if(backendResponse.ok){
                             await SecureStore.setItemAsync('token', data.token);
                             if(data.isNewUser){
-                                router.push('/quizcontent');
+                                router.push('/screens/quizcontent');
                                 setGoogleSigningUp(false);
                             }else{
-                                router.push('/(tabs)/homepage/homepage');
+                                router.push('/screens/(tabs)/homepage/homepage');
                                 setGoogleSigningUp(false);
                             }
                         }else{
@@ -265,11 +265,11 @@ export default function login(){
                             <Text style={{color:'white'}}>Or login with </Text>
                             {googleSigningUp ? 
                                 <TouchableOpacity disabled={true}>
-                                    <Image style={{ height: 30, width: 30}} source={require('./../../assets/images/googleIcon.png')}/>
+                                    <Image style={{ height: 30, width: 30}} source={require('../../../assets/images/googleIcon.png')}/>
                                 </TouchableOpacity>
                             :
                                 <TouchableOpacity onPress={handleGoogleSignin}>
-                                    <Image style={{ height: 30, width: 30}} source={require('./../../assets/images/googleIcon.png')}/>
+                                    <Image style={{ height: 30, width: 30}} source={require('../../../assets/images/googleIcon.png')}/>
                                 </TouchableOpacity>
 
                             }
@@ -277,7 +277,7 @@ export default function login(){
                             : null}
                         </View>
                         <View style={{alignItems: 'center', marginTop: 'auto'}}>
-                            <Text style={{color:'white'}}>Don't have an account? <Link style={{color: '#636AE8FF'}} href="/signup" dismissTo>Sign up</Link></Text>
+                            <Text style={{color:'white'}}>Don't have an account? <Link style={{color: '#636AE8FF'}} href="/screens/(tabs)/homepage/homepage" dismissTo>Sign up</Link></Text>
                         </View>
                     </ScrollView>
                 </KeyboardAvoidingView>

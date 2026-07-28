@@ -5,8 +5,9 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 import Ionicons from '@react-native-vector-icons/ionicons'
 import * as SecureStore from "expo-secure-store"
 import { GoogleSignin, isErrorWithCode, isSuccessResponse, statusCodes } from "@react-native-google-signin/google-signin"
+import { validateRegister } from "../utils/validRegistration"
 
-type formtype = {username: string, email: string, password: string, confirmPassword: string};
+/*type formtype = {username: string, email: string, password: string, confirmPassword: string};
     
 const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 const usernameRegex =  /^[a-z][a-z0-9._]{2,}$/;
@@ -29,7 +30,7 @@ export const validateRegister = (form: formtype) =>{
         return "Password must match";
     }
 }
-
+*/
 
 export default function SignUp(){
     const styles = StyleSheet.create({
@@ -80,6 +81,8 @@ export default function SignUp(){
             justifyContent: 'center'
         }
     })
+
+    type formtype = {username: string, email: string, password: string, confirmPassword: string};
 
     const[registerForm, setRegisterform] = useState<formtype> ({
         username: '',
@@ -134,7 +137,7 @@ export default function SignUp(){
                 });
 
                 await SecureStore.setItemAsync('token', data.token);
-                router.push('/quizcontent');
+                router.push('/screens/quizcontent');
                 setSigningUp(false);
             }else{
                 setErrorMessage(data.message);
@@ -180,10 +183,10 @@ export default function SignUp(){
                         
                         //console.log(data.isNewUser);
                         if(data.isNewUser){
-                            router.push('/quizcontent');
+                            router.push('/screens/quizcontent');
                             setGoogleSigningUp(false);
                         }else{
-                            router.push('/(tabs)/homepage/homepage');
+                            router.push('/screens/(tabs)/homepage/homepage');
                             setGoogleSigningUp(false);
                         }
                     }else{
@@ -309,11 +312,11 @@ export default function SignUp(){
                             <Text style={{color: 'white'}}> Or login with </Text>
                             {googleSigningUp ? 
                                 <TouchableOpacity disabled={true}>
-                                    <Image style={{ height: 30, width: 30}} source={require('./../../assets/images/googleIcon.png')}/>
+                                    <Image style={{ height: 30, width: 30}} source={require('../../../assets/images/googleIcon.png')}/>
                                 </TouchableOpacity>
                             :
                                 <TouchableOpacity onPress={handleGoogleSignin}>
-                                    <Image style={{ height: 30, width: 30}} source={require('./../../assets/images/googleIcon.png')}/>
+                                    <Image style={{ height: 30, width: 30}} source={require('../../../assets/images/googleIcon.png')}/>
                                 </TouchableOpacity>
 
                             }
@@ -322,7 +325,7 @@ export default function SignUp(){
                             
                         </View>
                         <View style={{alignItems: 'center',  marginTop: 'auto'}}>
-                            <Text style={{color: 'white'}}>Already have an account? <Link href='/login' style={{ color: '#636AE8FF'}} dismissTo>Login</Link> </Text>
+                            <Text style={{color: 'white'}}>Already have an account? <Link href='/screens/login' style={{ color: '#636AE8FF'}} dismissTo>Login</Link> </Text>
                         </View>
                     </ScrollView>
                 </KeyboardAvoidingView>
