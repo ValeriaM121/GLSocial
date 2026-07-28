@@ -5,7 +5,7 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "GLSocial",
+    "scheme": "glsocial",
     "userInterfaceStyle": "automatic",
     "ios": {
       "icon": "./assets/expo.icon",
@@ -46,12 +46,14 @@
       [
         "expo-build-properties",
         {
-          "ios":{
+          "ios": {
             "useFrameworks": "static"
           }
         }
-      ]
-
+      ],
+      "expo-image",
+      "expo-status-bar",
+      "expo-web-browser"
     ],
     "experiments": {
       "typedRoutes": true,
