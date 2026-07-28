@@ -5,8 +5,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import Ionicons from '@react-native-vector-icons/ionicons'
 import * as SecureStore from "expo-secure-store"
 import { GoogleSignin, isErrorWithCode, isSuccessResponse, statusCodes } from "@react-native-google-signin/google-signin"
-
-type formtype = {email: string, password: string};
+import { validateLogin } from "../utils/validateLogin"
+/*type formtype = {email: string, password: string};
     
 const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&$#])[A-Za-z\d@$!%*?&#]{8,50}$/;
@@ -21,10 +21,10 @@ export const validateLogin = (form: formtype) =>{
     if(!passwordRegex.test(form.password)){
         return "Invalid Password";
     }
-}
+}*/
 
 
-export default function login(){
+export default function Login(){
     const styles = StyleSheet.create({
         safeArea:{
             flex: 1,
@@ -222,8 +222,9 @@ export default function login(){
                         <View style={{gap: 10, width: '100%'}}>
                             <Text style={{color: 'white', fontSize: 16}}> Email:</Text>
                             <TextInput
+                                testID="email-input"
                                 value={loginForm.email}
-                                placeholder= "Enter email"
+                                placeholder= "Enter Email"
                                 placeholderTextColor='gray'
                                 onChangeText={(text) => setLoginForm(prev => ({ ...prev, email: text }))}
                                 keyboardType="email-address"
@@ -233,6 +234,7 @@ export default function login(){
                             <Text style={{color: 'white', fontSize: 16}}> Password:</Text>
                             <View style={styles.showPass}>
                                 <TextInput
+                                    testID="password-input"
                                     style = {styles.textBox}
                                     value={loginForm.password}
                                     placeholder= "Enter Password"
@@ -257,7 +259,7 @@ export default function login(){
                                 <Text style= {{ color: 'white' }}>Sign In</Text>
                             </TouchableOpacity>
                             :
-                            <TouchableOpacity style={styles.signInButton} onPress={handleLoginButton}>
+                            <TouchableOpacity style={styles.signInButton} testID="login-button" onPress={handleLoginButton}>
                                 <Text style= {{ color: 'white' }}>Sign In</Text>
                             </TouchableOpacity>}
                         </View>
@@ -265,11 +267,11 @@ export default function login(){
                             <Text style={{color:'white'}}>Or login with </Text>
                             {googleSigningUp ? 
                                 <TouchableOpacity disabled={true}>
-                                    <Image style={{ height: 30, width: 30}} source={require('./../../assets/images/googleIcon.png')}/>
+                                    <Image style={{ height: 30, width: 30}} source={require('../../assets/images/googleIcon.png')}/>
                                 </TouchableOpacity>
                             :
-                                <TouchableOpacity onPress={handleGoogleSignin}>
-                                    <Image style={{ height: 30, width: 30}} source={require('./../../assets/images/googleIcon.png')}/>
+                                <TouchableOpacity testID="googlebutton" onPress={handleGoogleSignin}>
+                                    <Image style={{ height: 30, width: 30}} source={require('../../assets/images/googleIcon.png')}/>
                                 </TouchableOpacity>
 
                             }
@@ -277,7 +279,7 @@ export default function login(){
                             : null}
                         </View>
                         <View style={{alignItems: 'center', marginTop: 'auto'}}>
-                            <Text style={{color:'white'}}>Don't have an account? <Link style={{color: '#636AE8FF'}} href="/signup" dismissTo>Sign up</Link></Text>
+                            <Text style={{color:'white'}}>Don't have an account? <Link style={{color: '#636AE8FF'}} href="/signup" testID="signup-link" dismissTo>Sign up</Link></Text>
                         </View>
                     </ScrollView>
                 </KeyboardAvoidingView>
