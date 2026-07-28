@@ -33,7 +33,7 @@ export default function quizContent(){
         <SafeAreaView style={styles.safeArea}>
             <ScrollView contentContainerStyle = {styles.container}>
                 <Text> This is user quiz page!</Text>
-                <Link href="/screens/(tabs)/homepage/homepage" push asChild>
+                <Link href="/(tabs)/homepage/homepage" push asChild>
                     <TouchableOpacity style={styles.nextButton}>
                         <Text style={{color:"white"}}> next</Text>
                     </TouchableOpacity>

@@ -119,7 +119,7 @@ export default function login(){
                     password: ''
                 });
                 await SecureStore.setItemAsync('token', data.token);
-                router.push('/screens/(tabs)/homepage/homepage');
+                router.push('/(tabs)/homepage/homepage');
                 setLoggingIn(false);
             }else{
                 setErrorMessage(data.message);
@@ -160,10 +160,10 @@ export default function login(){
                         if(backendResponse.ok){
                             await SecureStore.setItemAsync('token', data.token);
                             if(data.isNewUser){
-                                router.push('/screens/quizcontent');
+                                router.push('/quizcontent');
                                 setGoogleSigningUp(false);
                             }else{
-                                router.push('/screens/(tabs)/homepage/homepage');
+                                router.push('/(tabs)/homepage/homepage');
                                 setGoogleSigningUp(false);
                             }
                         }else{
@@ -265,11 +265,11 @@ export default function login(){
                             <Text style={{color:'white'}}>Or login with </Text>
                             {googleSigningUp ? 
                                 <TouchableOpacity disabled={true}>
-                                    <Image style={{ height: 30, width: 30}} source={require('../../../assets/images/googleIcon.png')}/>
+                                    <Image style={{ height: 30, width: 30}} source={require('../../assets/images/googleIcon.png')}/>
                                 </TouchableOpacity>
                             :
                                 <TouchableOpacity onPress={handleGoogleSignin}>
-                                    <Image style={{ height: 30, width: 30}} source={require('../../../assets/images/googleIcon.png')}/>
+                                    <Image style={{ height: 30, width: 30}} source={require('../../assets/images/googleIcon.png')}/>
                                 </TouchableOpacity>
 
                             }
@@ -277,7 +277,7 @@ export default function login(){
                             : null}
                         </View>
                         <View style={{alignItems: 'center', marginTop: 'auto'}}>
-                            <Text style={{color:'white'}}>Don't have an account? <Link style={{color: '#636AE8FF'}} href="/screens/(tabs)/homepage/homepage" dismissTo>Sign up</Link></Text>
+                            <Text style={{color:'white'}}>Don't have an account? <Link style={{color: '#636AE8FF'}} href="/signup" dismissTo>Sign up</Link></Text>
                         </View>
                     </ScrollView>
                 </KeyboardAvoidingView>

@@ -47,7 +47,7 @@ export default function quizContent(){
     const handleLogout = async() =>{
         try {
             await SecureStore.deleteItemAsync("token");
-            router.replace("/screens/login");
+            router.replace("/login");
         } catch (error) {
             console.log("Failed to clear secure token", error);
         }

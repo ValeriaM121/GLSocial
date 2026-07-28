@@ -147,12 +147,12 @@ export default function Index(){
           <Text style={styles.subText}>GL Content</Text>
         </View>
         <View style={styles.buttonView}>
-          <Link href="/screens/login" push asChild>
+          <Link href="/login" push asChild>
             <TouchableOpacity style={styles.loginButton}>
               <Text style={{color:'white'}}>Login</Text>
             </TouchableOpacity>
           </Link>
-          <Text style={{color:"white"}}> Don't have an account? <Link href="/screens/signup" push asChild>
+          <Text style={{color:"white"}}> Don't have an account? <Link href="/signup" push asChild>
           <Text style={{color:"#636AE8FF"}}>Sign Up</Text>
           </Link> </Text>
         </View>

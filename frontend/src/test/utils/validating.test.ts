@@ -1,7 +1,7 @@
 import { validateRegister } from "../../utils/validRegistration";
-import { validateLogin } from "@/app/utils/validateLogin";
+import { validateLogin } from "../../utils/validateLogin";
 import { render } from "@testing-library/react-native"
-import  Index  from "../../screens/index"
+import  Index  from "../../app/index"
 
 describe("validateRegister", () => {
     it("returns error when fields are empty", () =>{

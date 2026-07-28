@@ -137,7 +137,7 @@ export default function SignUp(){
                 });
 
                 await SecureStore.setItemAsync('token', data.token);
-                router.push('/screens/quizcontent');
+                router.push('/quizcontent');
                 setSigningUp(false);
             }else{
                 setErrorMessage(data.message);
@@ -183,10 +183,10 @@ export default function SignUp(){
                         
                         //console.log(data.isNewUser);
                         if(data.isNewUser){
-                            router.push('/screens/quizcontent');
+                            router.push('/quizcontent');
                             setGoogleSigningUp(false);
                         }else{
-                            router.push('/screens/(tabs)/homepage/homepage');
+                            router.push('/(tabs)/homepage/homepage');
                             setGoogleSigningUp(false);
                         }
                     }else{
@@ -312,11 +312,11 @@ export default function SignUp(){
                             <Text style={{color: 'white'}}> Or login with </Text>
                             {googleSigningUp ? 
                                 <TouchableOpacity disabled={true}>
-                                    <Image style={{ height: 30, width: 30}} source={require('../../../assets/images/googleIcon.png')}/>
+                                    <Image style={{ height: 30, width: 30}} source={require('../../assets/images/googleIcon.png')}/>
                                 </TouchableOpacity>
                             :
                                 <TouchableOpacity onPress={handleGoogleSignin}>
-                                    <Image style={{ height: 30, width: 30}} source={require('../../../assets/images/googleIcon.png')}/>
+                                    <Image style={{ height: 30, width: 30}} source={require('../../assets/images/googleIcon.png')}/>
                                 </TouchableOpacity>
 
                             }
@@ -325,7 +325,7 @@ export default function SignUp(){
                             
                         </View>
                         <View style={{alignItems: 'center',  marginTop: 'auto'}}>
-                            <Text style={{color: 'white'}}>Already have an account? <Link href='/screens/login' style={{ color: '#636AE8FF'}} dismissTo>Login</Link> </Text>
+                            <Text style={{color: 'white'}}>Already have an account? <Link href='/login' style={{ color: '#636AE8FF'}} dismissTo>Login</Link> </Text>
                         </View>
                     </ScrollView>
                 </KeyboardAvoidingView>
