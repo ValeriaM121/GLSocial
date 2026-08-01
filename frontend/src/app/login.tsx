@@ -248,7 +248,7 @@ export default function Login(){
                             </View>
                             
                             <View style={{flexDirection: 'row', justifyContent: 'flex-end'}}>
-                                <Text style={{color: '#636AE8FF'}}>Forgot Password?</Text>
+                                <Link style={{color: '#636AE8FF'}} href="/forgotPassword/forgotPassword"> Forgot Password</Link>
                             </View>
                             <View>
                                 {errorMessage ? <Text style={{color: 'red', paddingBottom: 10}}>{errorMessage}</Text> : null }

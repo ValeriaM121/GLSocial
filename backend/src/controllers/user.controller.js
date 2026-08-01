@@ -1,6 +1,8 @@
 import { prisma } from "../config/database.js"
 import bcrypt from "bcryptjs"
 import { generateToken } from "../utils/generateToken.js"
+import {sendWelcomeEmail,sendForgotPasswordEmail} from "../utils/forgotPasswordEmail.js"
+import crypto from "crypto"
 
 const registerUser = async(req, res) =>{
     //for now hash password so we are not direcly putting passwords in database but once
@@ -60,6 +62,7 @@ const registerUser = async(req, res) =>{
                 password: hashedPassword
             }
         });
+        sendWelcomeEmail(email);
 
         //generate JWT token
         const token = generateToken(user.id);
@@ -176,6 +179,99 @@ const loginUser = async(req, res)=>{
     }
 }
 
+const forgotPassword = async(req, res) =>{
+    //ADD can't reset if already did within 15 minutes
+    try{
+        const { email } = req.body;
+
+        if(!email){
+            return res.status(400).json({message: "Field needs to be filled"});
+        }
+
+        const lowerEmail = email.toLowerCase();
+        const checkRegEmail = /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/.test(email);
+        if(!checkRegEmail){
+            return res.status(400).json({message: "Invalid email"});
+        };
+        
+        const user = await prisma.user.findUnique({
+            where:{email: lowerEmail}
+        });
+        console.log(user);
+        if(!user){
+            return res.status(200).json({message: "If an account exists, we've sent password reset instructions."});
+        }
+
+        //generate a reset passsword token
+        const resetToken = crypto.randomBytes(32).toString("hex");
+
+        const hashResetToken = crypto.createHash("sha256").update(resetToken).digest("hex");
+        console.log(typeof hashResetToken);
+        //add expire time to be 15 minutes
+        const expireAt = new Date(Date.now() + 15 * 60 * 1000);
+        console.log(expireAt);
+        console.log(typeof user.id);
+        //send this to database
+        await prisma.passwordResetToken.create({
+            data: {
+                userId: user.id,
+                token: hashResetToken,
+                expiresAt: expireAt,
+            }
+        });
+
+        console.log("makes it past sending to db");
+        const url = `${process.env.DEEP_LINK_URL}?token=${encodeURIComponent(resetToken)}`
+        console.log("makes it past url");
+        console.log(url);
+        //call sendEmail
+        await sendForgotPasswordEmail(user.email, url);
+        console.log("makes it past email");
+        return res.status(200).json({message: "If an account exists, we've sent password reset instructions."})
+                
+    }catch(error){
+        return res.status(500).json(`Internal Server Error`);
+    }
+}
+
+const changePassword = async(req,res) =>{
+    try{
+        const { newPassword, token} = req.body;
+        if(!newPassword){
+            return req.status(400).json({message: "Nothing was sent for password"});
+        }
+        if(!token){
+            return req.status(400).json({message: "Something went wrong with token"});
+        }
+    
+        const hashGivenToken = crypto.createHash("sha256").update(token).digest("hex");
+
+        const findToken = await prisma.passwordResetToken.findUnique({
+            where: {token: hashGivenToken}
+        })
+        if(!findToken){
+            return res.status(400).json({message: "No token was found"});
+        }
+        if(findToken.expiresAt < Date.now()){
+            return res.status(400).json({message: "Time has expired"});
+        }
+        const checkRegPassword = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&$#])[A-Za-z\d@$!%*?&#]{8,50}$/.test(newPassword);
+        if(!checkRegPassword){
+            return res.status(400).json({message: "Password needs to be 8 characters long. Must contain a uppercase, lowercase, unique character (@$!%*&#), and a digit."})
+        }
+        const salt = await bcrypt.genSalt(10)
+        const hashedPassword = await bcrypt.hash(newPassword, salt);
+        
+        const user = await prisma.user.update({
+            where:{id:findToken.userId},
+            data: {password:hashedPassword}
+        });
+        return res.status(200).json({message: "Successfully changed password!"});
+    }catch(error){
+        return res.status(500).json({message: "Internal Server Error"});
+    }
+}
+
 const logoutUser = async(req,res)=>{
     try{
         const { email } = req.body;
@@ -192,5 +288,5 @@ const logoutUser = async(req,res)=>{
     }
 }
 export{
-    registerUser, loginUser, logoutUser, googleLogin
+    registerUser, loginUser, logoutUser, googleLogin, forgotPassword, changePassword
 };
