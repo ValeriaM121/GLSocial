@@ -254,6 +254,11 @@ const changePassword = async(req,res) =>{
         if(!findToken){
             return res.status(400).json({message: "No token was found"});
         }
+
+        if(findToken.expiresAt < Date.now()){
+            return res.status(400).json({message: "Time has expired"});
+        }
+
         const findUser = await prisma.user.findUnique({
             where:{id: findToken.userId}
         })
@@ -265,10 +270,7 @@ const changePassword = async(req,res) =>{
         if(isPasswordValid){
             return res.status(400).json({message: "Password must be different than present password"});
         }
-
-        if(findToken.expiresAt < Date.now()){
-            return res.status(400).json({message: "Time has expired"});
-        }
+        
         const checkRegPassword = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&$#])[A-Za-z\d@$!%*?&#]{8,50}$/.test(newPassword);
         if(!checkRegPassword){
             return res.status(400).json({message: "Password needs to be 8 characters long. Must contain a uppercase, lowercase, unique character (@$!%*&#), and a digit."})
