@@ -5,7 +5,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import Ionicons from '@react-native-vector-icons/ionicons';
 import { ChangePasswordValidation } from "@/utils/validateChangePassword"
 
-export default function ForgotPassword(){
+export default function ChangePassword(){
     const styles = StyleSheet.create({
         safeArea:{
             flex: 1,
@@ -71,6 +71,7 @@ export default function ForgotPassword(){
     console.log(token);
 
     const handleSubmitButton = async() =>{
+        console.log(`Submit button for change button CLICKED!`);
         setLoading(true);
         setErrorMessage("");
         setMessage("");
@@ -79,8 +80,10 @@ export default function ForgotPassword(){
         if(check){
             setErrorMessage(check);
             setLoading(false);
+            return;
         }
         console.log("in changepassowrd: token" + token);
+        console.log("Password sending to backend " + passwordForm.password);
         try{
             const response = await fetch(`${baseURL}auth/changePassword`,{
                 method: "PATCH",

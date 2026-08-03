@@ -10,7 +10,7 @@ import { connectDB, disconnectDB } from "./config/database.js"
 config();
 connectDB();
 
-app.listen(process.env.PORT, () =>{
+app.listen(process.env.PORT, "0.0.0.0", () =>{
     console.log(`Server is running on PORT ${process.env.PORT}`);
 });
 

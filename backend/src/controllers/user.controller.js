@@ -243,15 +243,29 @@ const changePassword = async(req,res) =>{
         if(!token){
             return req.status(400).json({message: "Something went wrong with token"});
         }
-    
-        const hashGivenToken = crypto.createHash("sha256").update(token).digest("hex");
+        console.log(`Password in backend: ${newPassword} and token is ${token}`);
 
+        const hashGivenToken = crypto.createHash("sha256").update(token).digest("hex");
+        console.log(`hashedToken: ${hashGivenToken}`);
         const findToken = await prisma.passwordResetToken.findUnique({
             where: {token: hashGivenToken}
         })
+        console.log(`Token in database: ${findToken}`);
         if(!findToken){
             return res.status(400).json({message: "No token was found"});
         }
+        const findUser = await prisma.user.findUnique({
+            where:{id: findToken.userId}
+        })
+
+        if(!findUser){
+            return res.status(400).json({message: "No user found."});//shouldn't really get to this point up to now. But just in case
+        }
+        const isPasswordValid = await bcrypt.compare(newPassword, findUser.password);
+        if(isPasswordValid){
+            return res.status(400).json({message: "Password must be different than present password"});
+        }
+
         if(findToken.expiresAt < Date.now()){
             return res.status(400).json({message: "Time has expired"});
         }
@@ -266,6 +280,7 @@ const changePassword = async(req,res) =>{
             where:{id:findToken.userId},
             data: {password:hashedPassword}
         });
+        console.log(`user updated password: ${user}`);
         return res.status(200).json({message: "Successfully changed password!"});
     }catch(error){
         return res.status(500).json({message: "Internal Server Error"});

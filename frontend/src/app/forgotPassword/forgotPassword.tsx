@@ -62,6 +62,7 @@ export default function ForgotPassword(){
         if(check){
             setErrorMessage(check);
             setLoading(false);
+            return;
         }
         
         try {
