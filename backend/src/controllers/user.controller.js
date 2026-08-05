@@ -1,6 +1,8 @@
 import { prisma } from "../config/database.js"
 import bcrypt from "bcryptjs"
 import { generateToken } from "../utils/generateToken.js"
+import {sendWelcomeEmail,sendForgotPasswordEmail} from "../utils/forgotPasswordEmail.js"
+import crypto from "crypto"
 
 const registerUser = async(req, res) =>{
     //for now hash password so we are not direcly putting passwords in database but once
@@ -60,6 +62,7 @@ const registerUser = async(req, res) =>{
                 password: hashedPassword
             }
         });
+        sendWelcomeEmail(email);
 
         //generate JWT token
         const token = generateToken(user.id);
@@ -130,7 +133,7 @@ const googleLogin = async(req, res)=>{
         
     } catch (error) {
         console.error(`Error with using Google to signup/login: ${error}`)
-        return res.status(500).json("Internal server error")
+        return res.status(500).json({message: "Internal server error"})
     }
 }
 
@@ -172,9 +175,169 @@ const loginUser = async(req, res)=>{
 
     }catch(error){
         console.error(`Error logging in user: ${error}`);
-        return res.status(500).json(`Internal Server Error`);
+        return res.status(500).json({message: `Internal Server Error`});
     }
 }
+/* 
+    For now I am sending token and id into the url for resetPasswords. So we can get the exact 
+    row where reset info is for the specific user. There's a low chance that there will be
+    multiple of the same tokens. Maybe future add to Schema that tokens need to be unique. And
+    add loops to keep creating new tokens if token doesn't go into schema since it's not unique.
+
+*/
+const forgotPassword = async(req, res) =>{
+    try{
+        const { email } = req.body;
+
+        if(!email){
+            return res.status(400).json({message: "Field needs to be filled"});
+        }
+
+        const lowerEmail = email.toLowerCase();
+        const checkRegEmail = /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/.test(email);
+        if(!checkRegEmail){
+            return res.status(400).json({message: "Invalid email"});
+        };
+        
+        const user = await prisma.user.findUnique({
+            where:{email: lowerEmail}
+        });
+        if(!user){
+            return res.status(200).json({message: "If an account exists, we've sent password reset instructions."});
+        }
+
+        const existingResetTokens = await prisma.passwordResetToken.findMany({
+            where:{userId: user.id}
+        });
+
+        const activeResetToken = existingResetTokens.find((resetToken) => resetToken.expiresAt > Date.now());
+        if(activeResetToken){
+            return res.status(400).json({message: "A password reset email was recently sent. Please wait a few more minutes before requesting another one."});
+        }
+
+        if(existingResetTokens.length > 0){
+            await prisma.passwordResetToken.deleteMany({
+                where: { userId: user.id }
+            });
+        }
+
+        //generate a reset passsword token
+        const resetToken = crypto.randomBytes(32).toString("hex");
+
+        const hashResetToken = crypto.createHash("sha256").update(resetToken).digest("hex");
+        //add expire time to be 15 minutes
+        const expireAt = new Date(Date.now() + 15 * 60 * 1000);
+        //send this to database
+       const tokenInfo =  await prisma.passwordResetToken.create({
+            data: {
+                userId: user.id,
+                token: hashResetToken,
+                expiresAt: expireAt,
+            }
+        });
+
+        const url = `${process.env.DEEP_LINK_URL}?token=${encodeURIComponent(resetToken)}&id=${tokenInfo.id}`
+        console.log(url);
+        //call sendEmail
+        await sendForgotPasswordEmail(user.email, url);
+        return res.status(200).json({message: "If an account exists, we've sent password reset instructions."})          
+    }catch(error){
+        return res.status(500).json({message:`Internal Server Error`});
+    }
+}
+
+const changePassword = async(req,res) =>{
+    try{
+        const { id, newPassword, token } = req.body;
+
+        if(!newPassword){
+            return res.status(400).json({message: "Nothing was sent for password"});
+        }
+        if(!token){
+            return res.status(400).json({message: "Something went wrong with token"});
+        }
+        if(!id){
+            return res.status(400).json({message: "There's something missing within the URL"});
+        }
+
+        const findResetToken = await prisma.passwordResetToken.findUnique({
+            where: {id: id}
+        });
+        if(!findResetToken){
+            return res.status(400).json({message: "URL is not valid"});
+        }
+
+        const hashGivenToken = crypto.createHash("sha256").update(token).digest("hex");
+        if(hashGivenToken !== findResetToken.token){
+            return res.status(400).json({message: "URL is not valid"});
+        }
+
+        /*const findToken = await prisma.passwordResetToken.findFirst({
+            where: {token: hashGivenToken},
+            orderBy: { createdAT: "desc" }
+        });
+
+        if(!findToken){
+            return res.status(400).json({message: "URL is not valid"});
+        }*/
+
+        if(findResetToken.expiresAt < Date.now()){
+            await prisma.passwordResetToken.delete({
+                where: { id: findResetToken.id }
+            });
+            return res.status(400).json({message: "Time has expired"});
+        }
+
+        const findUser = await prisma.user.findUnique({
+            where:{id: findResetToken.userId}
+        })
+        
+        if(!findUser){
+            return res.status(400).json({message: "No user found."});//shouldn't really get to this point up to now. But just in case
+        }
+        const isPasswordValid = await bcrypt.compare(newPassword, findUser.password);
+        if(isPasswordValid){
+            return res.status(400).json({message: "Password must be different than present password"});
+        }
+        const checkRegPassword = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&$#])[A-Za-z\d@$!%*?&#]{8,50}$/.test(newPassword);
+        if(!checkRegPassword){
+            return res.status(400).json({message: "Password needs to be 8 characters long. Must contain a uppercase, lowercase, unique character (@$!%*&#), and a digit."})
+        }
+        const salt = await bcrypt.genSalt(10)
+        const hashedPassword = await bcrypt.hash(newPassword, salt);
+        
+        const user = await prisma.user.update({
+            where:{id:findResetToken.userId},
+            data: {password:hashedPassword}
+        });
+        await prisma.passwordResetToken.deleteMany({
+            where: { userId: findResetToken.userId }
+        });
+        return res.status(200).json({message: "Successfully changed password!"});
+    }catch(error){
+        return res.status(500).json({message: "Internal Server Error"});
+    }
+}
+
+/*Create a html file later if I want to create a web version
+This is to check once we deploy backend
+const openResetPassword = (req, res)=>{
+    const {token,id} = req.query();
+    res.send(`
+    <!DOCTYPE html>
+    <html>
+        <body>
+            <h2>Opening GLSocial</h2>
+
+            <script>
+                window.location.href=
+                    "${process.env.DEEP_LINK_URL}?token=${token}&id=${id}"
+            </script>
+        </body>
+    </html>
+    `)
+}
+*/
 
 const logoutUser = async(req,res)=>{
     try{
@@ -192,5 +355,5 @@ const logoutUser = async(req,res)=>{
     }
 }
 export{
-    registerUser, loginUser, logoutUser, googleLogin
+    registerUser, loginUser, logoutUser, googleLogin, forgotPassword, changePassword //add openResetPassword
 };

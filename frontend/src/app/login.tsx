@@ -119,7 +119,7 @@ export default function Login(){
                     password: ''
                 });
                 await SecureStore.setItemAsync('token', data.token);
-                router.push('/(tabs)/homepage/homepage');
+                router.replace('/(tabs)/homepage/homepage');
                 setLoggingIn(false);
             }else{
                 setErrorMessage(data.message);
@@ -160,10 +160,10 @@ export default function Login(){
                         if(backendResponse.ok){
                             await SecureStore.setItemAsync('token', data.token);
                             if(data.isNewUser){
-                                router.push('/quizcontent');
+                                router.replace('/quizcontent');
                                 setGoogleSigningUp(false);
                             }else{
-                                router.push('/(tabs)/homepage/homepage');
+                                router.replace('/(tabs)/homepage/homepage');
                                 setGoogleSigningUp(false);
                             }
                         }else{
@@ -212,7 +212,7 @@ export default function Login(){
             <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
                 <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{flex: 1, backgroundColor: '#1E2128FF'}} keyboardVerticalOffset={0}>
                     <ScrollView contentContainerStyle = {styles.container} keyboardShouldPersistTaps= "handled">
-                        <TouchableOpacity onPress={() => router.back()}>
+                        <TouchableOpacity onPress={() => router.dismissTo('/')}>
                             <Ionicons name='arrow-back' size={23} color='white'/>
                         </TouchableOpacity>
                         <View>
@@ -248,7 +248,7 @@ export default function Login(){
                             </View>
                             
                             <View style={{flexDirection: 'row', justifyContent: 'flex-end'}}>
-                                <Text style={{color: '#636AE8FF'}}>Forgot Password?</Text>
+                                <Link style={{color: '#636AE8FF'}} href="/forgotPassword/forgotPassword"> Forgot Password</Link>
                             </View>
                             <View>
                                 {errorMessage ? <Text style={{color: 'red', paddingBottom: 10}}>{errorMessage}</Text> : null }
@@ -279,7 +279,7 @@ export default function Login(){
                             : null}
                         </View>
                         <View style={{alignItems: 'center', marginTop: 'auto'}}>
-                            <Text style={{color:'white'}}>Don't have an account? <Link style={{color: '#636AE8FF'}} href="/signup" testID="signup-link" dismissTo>Sign up</Link></Text>
+                            <Text style={{color:'white'}}>Don't have an account? <Link style={{color: '#636AE8FF'}} href="/signup" testID="signup-link">Sign up</Link></Text>
                         </View>
                     </ScrollView>
                 </KeyboardAvoidingView>

@@ -137,7 +137,7 @@ export default function SignUp(){
                 });
 
                 await SecureStore.setItemAsync('token', data.token);
-                router.push('/quizcontent');
+                router.replace('/quizcontent');
                 setSigningUp(false);
             }else{
                 setErrorMessage(data.message);
@@ -183,10 +183,10 @@ export default function SignUp(){
                         
                         //console.log(data.isNewUser);
                         if(data.isNewUser){
-                            router.push('/quizcontent');
+                            router.replace('/quizcontent');
                             setGoogleSigningUp(false);
                         }else{
-                            router.push('/(tabs)/homepage/homepage');
+                            router.replace('/(tabs)/homepage/homepage');
                             setGoogleSigningUp(false);
                         }
                     }else{
@@ -235,7 +235,7 @@ export default function SignUp(){
             <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
                 <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{flex:1}} >
                     <ScrollView contentContainerStyle = {styles.container} keyboardShouldPersistTaps= "handled">
-                        <TouchableOpacity onPress={() => router.back()}>
+                        <TouchableOpacity onPress={() => router.dismissTo('/')}>
                             <Ionicons name='arrow-back' size={23} color='white'/>
                         </TouchableOpacity>
                         <View>
@@ -325,7 +325,7 @@ export default function SignUp(){
                             
                         </View>
                         <View style={{alignItems: 'center',  marginTop: 'auto'}}>
-                            <Text style={{color: 'white'}}>Already have an account? <Link href='/login' testID="login-link" style={{ color: '#636AE8FF'}} dismissTo>Login</Link> </Text>
+                            <Text style={{color: 'white'}}>Already have an account? <Link href='/login' testID="login-link" style={{ color: '#636AE8FF'}}>Login</Link> </Text>
                         </View>
                     </ScrollView>
                 </KeyboardAvoidingView>

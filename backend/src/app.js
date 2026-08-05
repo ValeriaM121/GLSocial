@@ -7,13 +7,13 @@ import userInfoRoutes from "./routes/userInfo.route.js"
 
 const app = express();
 
-/*Add this when starting to connect to frontend
-app.use(cors({
-    origin: ["http://192.0.0.2:8081", "http://10.170.87.158:8081"], // Add Expo dev URLs
+//Add this when starting to connect to frontend
+/*app.use(cors({
+    origin: ["http://192.0.0.2:8081", "http://10.170.87.158:8081", "http://10.170.69.6:8081"], // Add Expo dev URLs
     credentials: true, // Allow cookies
 }))*/
 app.use(cors({
-    origin: ["http://192.0.0.2:8081", "http://10.170.87.158:8081"],
+    origin: ["*"],
     credential: true
 }))
 
