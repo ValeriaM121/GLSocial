@@ -130,7 +130,7 @@ export default function ForgotPassword(){
                                 <Text style={{color:"white"}}>Submit</Text>
                             </TouchableOpacity>
                         }
-                        <Link style={{color: '#636AE8FF'}} href="/forgotPassword/changePassword" dismissTo>check</Link>
+                        {/*<Link style={{color: '#636AE8FF'}} href="/forgotPassword/changePassword" dismissTo>check</Link>*/}
                     </View>
                     
 

@@ -21,7 +21,7 @@ export const sendWelcomeEmail = async(email) =>{
 }
 
 export const sendForgotPasswordEmail = async (email,url)=>{
-    console.log(url);
+    console.log(url);//Once deployed don't need to log this & would use backend url after deployed.
     try{
         await resend.emails.send({
         from: 'onboarding@resend.dev',

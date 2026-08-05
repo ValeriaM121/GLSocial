@@ -68,10 +68,9 @@ export default function ChangePassword(){
 
     const baseURL = process.env.EXPO_PUBLIC_API_URL;
     const {token} = useLocalSearchParams();
-    console.log(token);
+    const {id} = useLocalSearchParams();
 
     const handleSubmitButton = async() =>{
-        console.log(`Submit button for change button CLICKED!`);
         setLoading(true);
         setErrorMessage("");
         setMessage("");
@@ -82,21 +81,21 @@ export default function ChangePassword(){
             setLoading(false);
             return;
         }
-        console.log("in changepassowrd: token" + token);
-        console.log("Password sending to backend " + passwordForm.password);
         try{
             const response = await fetch(`${baseURL}auth/changePassword`,{
                 method: "PATCH",
                 headers:{ 
-                    "Content-Type": "applciation/json"
+                    "Content-Type": "application/json"
                 },
                 credentials: "include",
                 body:JSON.stringify({
+                    id: id,
                     newPassword: passwordForm.password,
                     token: token
                 })
             });
             const data = await response.json();
+            console.log(data);
             if(response.ok){
                 setMessage(data.message);
                 router.replace("/login");
@@ -125,7 +124,7 @@ export default function ChangePassword(){
             <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
                 <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{flex: 1, backgroundColor: '#1E2128FF'}} keyboardVerticalOffset={0}>
                     <View style={styles.container}>
-                        <TouchableOpacity onPress={() => router.back()}>
+                        <TouchableOpacity onPress={() => router.replace('/login')}>
                             <Ionicons name='arrow-back' size={23} color='white'/>
                         </TouchableOpacity>
                         
@@ -164,6 +163,11 @@ export default function ChangePassword(){
                                         {hideConfirmPassword ? <Ionicons name='eye' size={23} color='black'/> : <Ionicons name='eye-off' size={23} color='black'/>}
                                     </TouchableOpacity>
                                 </View>
+                            {message ? 
+                                <Text style={{color:'white'}}>{message}</Text>
+                            :
+                                null
+                            }
                             {errorMessage ? 
                                 <Text style={{color:"red"}}>{errorMessage}</Text>
                             :

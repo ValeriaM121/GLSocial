@@ -10,4 +10,5 @@ router.post('/logout', authMiddleware, logoutUser);//check method if it's GET or
 router.post('/loginGoogle', verifyGoogleTokens, googleLogin);
 router.post('/forgotPassword', forgotPassword );
 router.patch('/changePassword', changePassword);
+//router.get('/reset-password', openResetPassword);
 export default router
