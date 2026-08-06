@@ -1,5 +1,5 @@
 import { Router } from "express"
-import { registerUser, loginUser, logoutUser, googleLogin, forgotPassword,changePassword, refreshToken} from "../controllers/user.controller.js"
+import { registerUser, loginUser, logoutUser, googleLogin, forgotPassword,changePassword, refreshToken, openResetPassword} from "../controllers/user.controller.js"
 import { verifyGoogleTokens } from "../middleware/authGoogleTokens.js"
 import { authMiddleware } from '../middleware/authTokens.js';
 const router = Router();
@@ -11,5 +11,5 @@ router.post('/loginGoogle', verifyGoogleTokens, googleLogin);
 router.post('/forgotPassword', forgotPassword );
 router.patch('/changePassword', changePassword);
 router.post('/refreshToken', refreshToken);
-//router.get('/reset-password', openResetPassword);
+router.get('/resetPassword', openResetPassword);
 export default router
