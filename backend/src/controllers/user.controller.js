@@ -303,7 +303,7 @@ const forgotPassword = async(req, res) =>{
         //console.log(url);
         //call sendEmail
         //await sendForgotPasswordEmail(user.email, url);
-        const url = `https://glsocial.onrender.com?token=${encodeURIComponent(resetToken)}`
+        const url = `https://glsocial.onrender.com/resetPassword?token=${encodeURIComponent(resetToken)}`
         await sendForgotPasswordEmail(user.email, url);
         return res.status(200).json({message: "If an account exists, we've sent password reset instructions."})          
     }catch(error){
