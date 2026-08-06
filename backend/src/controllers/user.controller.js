@@ -370,7 +370,7 @@ const changePassword = async(req,res) =>{
 /*Create a html file later if I want to create a web version
 This is to check once we deploy backend*/
 const openResetPassword = (req, res)=>{
-    const {token} = req.query();
+    const {token} = req.query;
     res.send(`
     <!DOCTYPE html>
     <html>
