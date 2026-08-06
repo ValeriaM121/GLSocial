@@ -6,6 +6,7 @@ import Ionicons from '@react-native-vector-icons/ionicons'
 import * as SecureStore from "expo-secure-store"
 import { GoogleSignin, isErrorWithCode, isSuccessResponse, statusCodes } from "@react-native-google-signin/google-signin"
 import { validateLogin } from "../utils/validateLogin"
+import * as Device from 'expo-device';
 /*type formtype = {email: string, password: string};
     
 const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
@@ -108,7 +109,8 @@ export default function Login(){
                 credentials: "include",
                 body: JSON.stringify({
                     email: loginForm.email,
-                    password: loginForm.password
+                    password: loginForm.password,
+                    deviceName: Device.deviceName 
                 })
             });
 
@@ -153,7 +155,8 @@ export default function Login(){
                             headers: {"Content-Type": "application/json"},
                             credentials: "include",
                             body: JSON.stringify({
-                                idToken: idToken
+                                idToken: idToken,
+                                deviceName: Device.deviceName
                             })
                         });
     

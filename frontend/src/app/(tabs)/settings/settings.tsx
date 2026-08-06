@@ -31,7 +31,7 @@ export default function Setting(){
     });
     const [token, setToken] = useState<String>("");
     
-    useEffect(()=>{
+    /*useEffect(()=>{
         const loadToken = async() => {
             const getToken = await SecureStore.getItemAsync('token');
             if(getToken){
@@ -39,11 +39,9 @@ export default function Setting(){
             }
         };
         loadToken();
-    },[]);
+    },[]);*/
 
-    useEffect(()=>{
-        
-    })
+    
 
     const handleLogout = async() =>{
         Logout();

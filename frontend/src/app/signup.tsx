@@ -6,7 +6,7 @@ import Ionicons from '@react-native-vector-icons/ionicons'
 import * as SecureStore from "expo-secure-store"
 import { GoogleSignin, isErrorWithCode, isSuccessResponse, statusCodes } from "@react-native-google-signin/google-signin"
 import { validateRegister } from "../utils/validRegistration"
-
+import * as Device from 'expo-device';
 /*type formtype = {username: string, email: string, password: string, confirmPassword: string};
     
 const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
@@ -122,7 +122,8 @@ export default function SignUp(){
                     username: registerForm.username,
                     email: registerForm.email,
                     password: registerForm.password,
-                    confirmPassword: registerForm.confirmPassword
+                    confirmPassword: registerForm.confirmPassword,
+                    deviceName: Device.deviceName
                 })
             });
 
@@ -173,7 +174,8 @@ export default function SignUp(){
                         headers: {"Content-Type": "application/json"},
                         credentials: "include",
                         body: JSON.stringify({
-                            idToken: idToken
+                            idToken: idToken,
+                            deviceName: Device.deviceName
                         })
                     });
 

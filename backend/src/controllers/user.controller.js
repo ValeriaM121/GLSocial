@@ -4,7 +4,7 @@ import { generateToken } from "../utils/generateToken.js"
 import {sendWelcomeEmail,sendForgotPasswordEmail} from "../utils/forgotPasswordEmail.js"
 import crypto from "crypto"
 
-const generateRefreshToken = async(userId) => {
+const generateRefreshToken = async(userId, deviceName) => {
     const refreshTokenExpirationDays = 7;
     let newRefreshToken = crypto.randomBytes(32).toString("hex");
     let hashRefreshToken = crypto.createHash("sha256").update(newRefreshToken).digest("hex");
@@ -15,7 +15,8 @@ const generateRefreshToken = async(userId) => {
                 data:{
                     tokenHash: hashRefreshToken,
                     expiresAt: expireRefreshToken,
-                    userId
+                    userId,
+                    deviceName
                 }
             })
             return { newRefreshToken }
@@ -39,9 +40,12 @@ const registerUser = async(req, res) =>{
     //for now hash password so we are not direcly putting passwords in database but once
     //models/schemas are created see if adding hashing there is faster or easier.
     try{
-        const { username, email, password, confirmPassword } = req.body;
+        const { username, email, password, confirmPassword, deviceName } = req.body;
         if(!username || !email || !password || !confirmPassword){
             return res.status(400).json({ message: "All fields needs to be filled." })
+        }
+        if(!deviceName){
+            return res.status(400).json({message: "Couldn't get device name"});
         }
         
         const lowerEmail = email.toLowerCase();
@@ -98,7 +102,7 @@ const registerUser = async(req, res) =>{
   
         //generate JWT token
         const token = generateToken(user.id);
-        const { newRefreshToken } = await generateRefreshToken(user.id);
+        const { newRefreshToken } = await generateRefreshToken(user.id, deviceName);
 
         return res.status(201).json({
             message: "User was successfully registered!",
@@ -125,6 +129,10 @@ const googleLogin = async(req, res)=>{
         if(!idToken){
             return res.status(400).json({message: "There was no token sent"});
         }*/
+        const { deviceName } = req.body;
+        if(!deviceName){
+            return res.status(400).json({message: "No device name given"});
+        }
         const googleUser = req.user;
         const googleId = googleUser.sub;
 
@@ -157,7 +165,7 @@ const googleLogin = async(req, res)=>{
             });
         }
         //Deal with adding if no googleID meaning that it is within created account from before just add googleID to join account
-        const { newRefreshToken } = await generateRefreshToken(user.id);
+        const { newRefreshToken } = await generateRefreshToken(user.id, deviceName);
 
         const token = generateToken(user.id);
         return res.status(200).json({
@@ -175,11 +183,13 @@ const googleLogin = async(req, res)=>{
 
 const loginUser = async(req, res)=>{
     try{
-        const{ email, password } = req.body;
+        const{ email, password, deviceName } = req.body;
         if( !email || !password ){
             return res.status(400).json({message: "All fields needs to be filled."});
         }
-
+        if(!deviceName){
+            return res.status(400).json({message:"No device name"});
+        }
         const lowerEmail = email.toLowerCase();
 
         const userExist = await prisma.user.findUnique({
@@ -197,7 +207,7 @@ const loginUser = async(req, res)=>{
 
         //JWT
         const token = generateToken(userExist.id);
-        const { newRefreshToken } = await generateRefreshToken(userExist.id);
+        const { newRefreshToken } = await generateRefreshToken(userExist.id, deviceName);
 
 
         return res.status(200).json({
