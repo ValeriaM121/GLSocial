@@ -119,6 +119,7 @@ export default function Login(){
                     password: ''
                 });
                 await SecureStore.setItemAsync('token', data.token);
+                await SecureStore.setItemAsync('refreshToken', data.refreshToken);
                 router.replace('/(tabs)/homepage/homepage');
                 setLoggingIn(false);
             }else{
@@ -159,6 +160,7 @@ export default function Login(){
                         const data = await backendResponse.json();
                         if(backendResponse.ok){
                             await SecureStore.setItemAsync('token', data.token);
+                            await SecureStore.setItemAsync('refreshToken', data.refreshToken);
                             if(data.isNewUser){
                                 router.replace('/quizcontent');
                                 setGoogleSigningUp(false);

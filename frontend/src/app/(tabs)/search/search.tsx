@@ -3,7 +3,7 @@ import { useState } from 'react'
 import { Link, router, Stack } from 'expo-router'
 import { SafeAreaView } from 'react-native-safe-area-context'
 
-export default function quizContent(){
+export default function Search(){
     const styles = StyleSheet.create({
         safeArea:{
             flex: 1,

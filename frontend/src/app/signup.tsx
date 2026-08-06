@@ -137,6 +137,7 @@ export default function SignUp(){
                 });
 
                 await SecureStore.setItemAsync('token', data.token);
+                await SecureStore.setItemAsync('refreshToken', data.refreshToken);
                 router.replace('/quizcontent');
                 setSigningUp(false);
             }else{
@@ -180,6 +181,7 @@ export default function SignUp(){
                     //console.log(data);
                     if(backendResponse.ok){
                         await SecureStore.setItemAsync('token', data.token);
+                        await SecureStore.setItemAsync('refreshToken', data.refreshToken);
                         
                         //console.log(data.isNewUser);
                         if(data.isNewUser){
