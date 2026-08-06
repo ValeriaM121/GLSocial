@@ -16,7 +16,8 @@ const generateRefreshToken = async(userId, deviceName) => {
                     tokenHash: hashRefreshToken,
                     expiresAt: expireRefreshToken,
                     userId,
-                    deviceName
+                    deviceName,
+                    lastUsedAt: new Date()
                 }
             })
             return { newRefreshToken }
@@ -391,9 +392,12 @@ const openResetPassword = (req, res)=>{
 //Can add deviceName/platform/lastUsedAt
 const refreshToken = async(req,res)=>{
     try {
-        const { refreshToken } = req.body;
+        const { refreshToken, deviceName } = req.body;
         if(!refreshToken){
             return res.status(400).json({message: "Unauthorized user"});
+        }
+        if(!deviceName){
+            return res.status(400).json({message: "No device name was sent"});
         }
 
         const hashRefreshToken = crypto.createHash("sha256").update(refreshToken).digest("hex");
@@ -417,7 +421,7 @@ const refreshToken = async(req,res)=>{
         })
 
         const token = generateToken(refreshInfo.userId);
-        const { newRefreshToken } = await generateRefreshToken(refreshInfo.userId);
+        const { newRefreshToken } = await generateRefreshToken(refreshInfo.userId, deviceName);
 
         console.log("created new token");
         return res.status(200).json({

@@ -1,5 +1,6 @@
 import * as SecureStore from "expo-secure-store"
 import { Logout } from "../utils/logout"
+import * as Device from 'expo-device';
 
 export const RefreshToken = async()=>{
     const baseURL = process.env.EXPO_PUBLIC_API_URL;
@@ -16,7 +17,8 @@ export const RefreshToken = async()=>{
             headers: { "Content-Type": "application/json"},
             credentials: "include",
             body: JSON.stringify({
-                refreshToken: refreshToken
+                refreshToken: refreshToken,
+                deviceName: Device.deviceName
             })
         });
         const data = await response.json();

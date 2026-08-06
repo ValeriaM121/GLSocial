@@ -76,7 +76,7 @@ export default function HomePage(){
     return(
         <SafeAreaView style={styles.safeArea}>
             <ScrollView contentContainerStyle = {styles.container}>
-                <Text style={{color:"white"}}> This is the homepage. checking</Text>
+                <Text style={{color:"white"}}> This is the homepage.</Text>
                 <Text style={{color: "blue"}}>User email is: {email}</Text>
                 {errorMessage ? <Text style={{color:"red"}}>{errorMessage}</Text> : null}
             </ScrollView>
