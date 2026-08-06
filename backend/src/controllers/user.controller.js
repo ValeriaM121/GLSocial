@@ -229,12 +229,38 @@ const loginUser = async(req, res)=>{
     }
 }
 /* 
-    For now I am sending token and id into the url for resetPasswords. So we can get the exact 
-    row where reset info is for the specific user. There's a low chance that there will be
-    multiple of the same tokens. Maybe future add to Schema that tokens need to be unique. And
-    add loops to keep creating new tokens if token doesn't go into schema since it's not unique.
+    Now deals with checking if token is unique when trying to send to database. If it 
+    fails try creating another resetToken.
 
 */
+const generateResetToken = async(userId) =>{
+    let resetToken = crypto.randomBytes(32).toString("hex");
+    console.log(`function restToken ${resetToken}`)
+    let hashResetToken = crypto.createHash("sha256").update(resetToken).digest("hex");
+    let expireAt = new Date(Date.now() + 15 * 60 * 1000);//expire in 15 minutes
+    while(true){
+        try{
+            await prisma.passwordResetToken.create({
+                data: {
+                    userId,
+                    token: hashResetToken,
+                    expiresAt: expireAt,
+                }
+            })
+            return { resetToken }
+
+        }catch(error){
+            if(error.code === "P2002"){
+                resetToken = crypto.randomBytes(32).toString("hex");
+                hashResetToken = crypto.createHash("sha256").update(resetToken).digest("hex");
+                expireAt = new Date(Date.now() + 15 * 60 * 1000);
+            }else{
+                throw error;
+            }
+        }
+    }
+}
+
 const forgotPassword = async(req, res) =>{
     try{
         const { email } = req.body;
@@ -271,22 +297,9 @@ const forgotPassword = async(req, res) =>{
             });
         }
 
-        //generate a reset passsword token
-        const resetToken = crypto.randomBytes(32).toString("hex");
+        const { resetToken } = await generateResetToken(user.id);
 
-        const hashResetToken = crypto.createHash("sha256").update(resetToken).digest("hex");
-        //add expire time to be 15 minutes
-        const expireAt = new Date(Date.now() + 15 * 60 * 1000);
-        //send this to database
-       const tokenInfo =  await prisma.passwordResetToken.create({
-            data: {
-                userId: user.id,
-                token: hashResetToken,
-                expiresAt: expireAt,
-            }
-        });
-
-        const url = `${process.env.DEEP_LINK_URL}?token=${encodeURIComponent(resetToken)}&id=${tokenInfo.id}`
+        const url = `${process.env.DEEP_LINK_URL}?token=${encodeURIComponent(resetToken)}`
         console.log(url);
         //call sendEmail
         await sendForgotPasswordEmail(user.email, url);
@@ -298,38 +311,21 @@ const forgotPassword = async(req, res) =>{
 
 const changePassword = async(req,res) =>{
     try{
-        const { id, newPassword, token } = req.body;
-
+        const { newPassword, token } = req.body;
         if(!newPassword){
             return res.status(400).json({message: "Nothing was sent for password"});
         }
         if(!token){
             return res.status(400).json({message: "Something went wrong with token"});
         }
-        if(!id){
-            return res.status(400).json({message: "There's something missing within the URL"});
-        }
-
-        const findResetToken = await prisma.passwordResetToken.findUnique({
-            where: {id: id}
-        });
-        if(!findResetToken){
-            return res.status(400).json({message: "URL is not valid"});
-        }
 
         const hashGivenToken = crypto.createHash("sha256").update(token).digest("hex");
-        if(hashGivenToken !== findResetToken.token){
-            return res.status(400).json({message: "URL is not valid"});
-        }
-
-        /*const findToken = await prisma.passwordResetToken.findFirst({
-            where: {token: hashGivenToken},
-            orderBy: { createdAT: "desc" }
+        const findResetToken = await prisma.passwordResetToken.findUnique({
+            where: {token: hashGivenToken}
         });
-
-        if(!findToken){
-            return res.status(400).json({message: "URL is not valid"});
-        }*/
+        if(!findResetToken){
+            return res.status(400).json({message: "Invalid token"});
+        }
 
         if(findResetToken.expiresAt < Date.now()){
             await prisma.passwordResetToken.delete({

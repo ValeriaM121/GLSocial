@@ -68,7 +68,6 @@ export default function ChangePassword(){
 
     const baseURL = process.env.EXPO_PUBLIC_API_URL;
     const {token} = useLocalSearchParams();
-    const {id} = useLocalSearchParams();
 
     const handleSubmitButton = async() =>{
         setLoading(true);
@@ -89,7 +88,6 @@ export default function ChangePassword(){
                 },
                 credentials: "include",
                 body:JSON.stringify({
-                    id: id,
                     newPassword: passwordForm.password,
                     token: token
                 })
@@ -107,16 +105,7 @@ export default function ChangePassword(){
         }catch(error){
             console.error(`Failed to change password: ${error}`);
             setErrorMessage("Failed to change user's password. Please try again later");
-        }
-
-        
-        //const check = validateForgotPassword(email);
-        /*if(check){
-            setErrorMessage(check);
-            setLoading(false);
-        }*/
-        
-
+        }   
     }
     
     return(
