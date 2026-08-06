@@ -20,8 +20,7 @@ export const sendWelcomeEmail = async(email) =>{
     })
 }
 
-export const sendForgotPasswordEmail = async (email)=>{
-    console.log(url);//Once deployed don't need to log this & would use backend url after deployed.
+export const sendForgotPasswordEmail = async (email,url)=>{
     try{
         await resend.emails.send({
         from: 'onboarding@resend.dev',
@@ -32,7 +31,7 @@ export const sendForgotPasswordEmail = async (email)=>{
             <div style="text-align: center">
                 <h2>Reset Your Password</h2>
                 <p>Just click the button at the bottom to change your password. This will expire in 15 minutes. </p>
-                <a href="https://glsocial.onrender.com/resetPassword" style="display:inline-block; background-color:#636AE8FF; color:white; padding: 15px; border-radius:8px; text-decoration: none; font-weight: bold;">Reset Password</a>
+                <a href="${url}" style="display:inline-block; background-color:#636AE8FF; color:white; padding: 15px; border-radius:8px; text-decoration: none; font-weight: bold;">Reset Password</a>
                 
             </div>
         </body>
