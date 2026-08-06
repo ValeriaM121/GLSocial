@@ -29,6 +29,23 @@ model User{
   watchlistMoviesItems WatchlistMoviesItem[]
 
   passwordResetTokens PasswordResetToken[]
+
+  refreshTokens RefreshToken[]
+}
+
+model RefreshToken{
+  id              String @id @default(uuid())
+  tokenHash       String @unique
+  expiresAt       DateTime
+  createdAt       DateTime @default(now())
+
+  deviceName      String?
+  lastUsedAt      DateTime?
+
+  revokedAt       DateTime?
+
+  userId          String
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade) 
 }
 
 model PasswordResetToken{
@@ -36,7 +53,7 @@ model PasswordResetToken{
   userId      String
   token       String
   expiresAt   DateTime
-  createdAT   DateTime @default(now())
+  createdAt   DateTime @default(now())
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }

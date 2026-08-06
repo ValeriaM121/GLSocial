@@ -3,8 +3,9 @@ import { useState, useEffect } from 'react'
 import { Link, router, Stack } from 'expo-router'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import * as SecureStore from "expo-secure-store"
+import { Logout} from "@/utils/logout"
 
-export default function quizContent(){
+export default function Setting(){
     const styles = StyleSheet.create({
         safeArea:{
             flex: 1,
@@ -30,7 +31,7 @@ export default function quizContent(){
     });
     const [token, setToken] = useState<String>("");
     
-    useEffect(()=>{
+    /*useEffect(()=>{
         const loadToken = async() => {
             const getToken = await SecureStore.getItemAsync('token');
             if(getToken){
@@ -38,19 +39,12 @@ export default function quizContent(){
             }
         };
         loadToken();
-    },[]);
+    },[]);*/
 
-    useEffect(()=>{
-        
-    })
+    
 
     const handleLogout = async() =>{
-        try {
-            await SecureStore.deleteItemAsync("token");
-            router.replace("/login");
-        } catch (error) {
-            console.log("Failed to clear secure token", error);
-        }
+        Logout();
     }
 
     return(
