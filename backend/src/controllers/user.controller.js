@@ -299,9 +299,11 @@ const forgotPassword = async(req, res) =>{
 
         const { resetToken } = await generateResetToken(user.id);
 
-        const url = `${process.env.DEEP_LINK_URL}?token=${encodeURIComponent(resetToken)}`
-        console.log(url);
+        //const url = `${process.env.DEEP_LINK_URL}?token=${encodeURIComponent(resetToken)}`
+        //console.log(url);
         //call sendEmail
+        //await sendForgotPasswordEmail(user.email, url);
+        const url = `https://glsocial.onrender.com/auth/resetPassword?token=${encodeURIComponent(resetToken)}`
         await sendForgotPasswordEmail(user.email, url);
         return res.status(200).json({message: "If an account exists, we've sent password reset instructions."})          
     }catch(error){
@@ -366,9 +368,9 @@ const changePassword = async(req,res) =>{
 }
 
 /*Create a html file later if I want to create a web version
-This is to check once we deploy backend
+This is to check once we deploy backend*/
 const openResetPassword = (req, res)=>{
-    const {token,id} = req.query();
+    const {token} = req.query;
     res.send(`
     <!DOCTYPE html>
     <html>
@@ -377,13 +379,12 @@ const openResetPassword = (req, res)=>{
 
             <script>
                 window.location.href=
-                    "${process.env.DEEP_LINK_URL}?token=${token}&id=${id}"
+                    "${process.env.DEEP_LINK_URL}?token=${token}"
             </script>
         </body>
     </html>
     `)
 }
-*/
 
 //Can add deviceName/platform/lastUsedAt
 const refreshToken = async(req,res)=>{
@@ -462,5 +463,5 @@ const logoutUser = async(req,res)=>{
     }
 }
 export{
-    registerUser, loginUser, logoutUser, googleLogin, forgotPassword, changePassword, refreshToken
+    registerUser, loginUser, logoutUser, googleLogin, forgotPassword, changePassword, refreshToken, openResetPassword
 };
