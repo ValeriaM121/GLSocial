@@ -4,6 +4,14 @@ import { generateToken } from "../utils/generateToken.js"
 import {sendWelcomeEmail,sendForgotPasswordEmail} from "../utils/forgotPasswordEmail.js"
 import crypto from "crypto"
 
+/*
+    GenerateRefreshToken:
+        - Purpose: Generate valid unique Refresh tokens
+        - Reason: In prisma we call tokens Unique and with using crypto.RandonBytes
+                  there's a (small) chance that we can create duplicate tokens which 
+                  would cause issues with the database. So this function will just keep 
+                  generating refresh tokens until it's accepted in database.
+*/
 const generateRefreshToken = async(userId, deviceName) => {
     const refreshTokenExpirationDays = 7;
     let newRefreshToken = crypto.randomBytes(32).toString("hex");
