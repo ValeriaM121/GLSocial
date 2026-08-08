@@ -1,9 +1,10 @@
 import { Router } from 'express'
 import{ getUsername, getEmail, updateUsername, updateEmail, updatePassword} from '../controllers/userInfo.controller.js'
 import { authMiddleware } from '../middleware/authTokens.js';
+import { APILimit } from '../middleware/rateLimiters.js';
 const router = Router();
 
-router.use(authMiddleware);
+router.use(authMiddleware, APILimit);
 
 router.get('/getUsername', getUsername);
 router.get('/getEmail', getEmail);
