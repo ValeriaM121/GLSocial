@@ -187,7 +187,7 @@ export default function SignUp(){
                         
                         //console.log(data.isNewUser);
                         if(data.isNewUser){
-                            router.replace('/quizcontent');
+                            router.replace('/googleUsername');
                             setGoogleSigningUp(false);
                         }else{
                             router.replace('/(tabs)/homepage/homepage');

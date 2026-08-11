@@ -54,6 +54,12 @@ export default function RootLayout(){
             }}
           />
           <Stack.Screen
+           name="googleUsername"
+            options={{
+              headerShown: false
+            }}
+          />
+          <Stack.Screen
            name="quizcontent"
             options={{
               headerShown: false
