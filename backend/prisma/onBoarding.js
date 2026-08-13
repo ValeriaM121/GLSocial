@@ -1,5 +1,30 @@
 import { prisma, connectDB, disconnectDB } from "../src/config/database.js";
 
+const showsTMDBID = [214942,155513,253710,252621,238754,291161,307420,282471,258447,216937,257788,312583,278138,237330,284488,283353,95620,135422];
+
+const genreId= {
+    28: "Action",
+    12: "Adventure",
+    16: "Animcation",
+    35: "Comedy",
+    80: "Crime",
+    99: "Documentary",
+    18: "Drama",
+    10751: "Family",
+    14: "Fantasy",
+    36: "History",
+    27: "Horror",
+    10402: "Music",
+    9648: "Mystery",
+    10749: "Romeance",
+    878: "Science Fiction",
+    53: "Thriller",
+    10752: "War",
+    37: "Western"
+}
+
+/*
+Might keep this just if i want to keep my overviews and change it to my database.
 const shows = [
     {
         title: "GAP: The Series",
@@ -42,8 +67,7 @@ const shows = [
         createdAt: new Date()
     }
 ]
-
-const main = async() =>{
+    const main = async() =>{
     await connectDB();
     console.log("Adding shows...");
     for(const show of shows){
@@ -52,6 +76,59 @@ const main = async() =>{
         });
         console.log(`Created show: ${show.title}`);
     }
+    console.log("Completed adding shows for onboarding");
+}
+*/
+const main = async() =>{
+    await connectDB();
+    console.log("Adding shows...");
+    for(let i = 0; i < showsTMDBID.length; i++){
+        const tmdbId = showsTMDBID[i];
+
+        const response = await fetch(
+            `https://api.themoviedb.org/3/tv/${encodeURIComponent(tmdbId)}`,
+            {
+                headers: {Authorization: `Bearer ${process.env.TMDB_ACCESS_TOKEN}`}
+            }
+        )
+        if(!response.ok){
+            console.log(`Could not reach TMDB show ${tmdbID}`);
+            continue;
+        }
+
+        const data = await response.json();
+        console.log(data);
+
+
+        const specificGenres = data.genres.map((g) => genreId[g.id] ?? "Drama");
+        const givenReleaseYear = Number((data.first_air_date ?? "").slice(0, 4) || 0);
+
+        const show = await prisma.show.create({
+            data:{
+                tmdbId: tmdbId,
+                title: data.name,
+                originalTitle: data.original_name,
+                overview: data.overview,
+                releaseYear: givenReleaseYear,
+                genres: specificGenres,
+                seasons: data.number_of_seasons,
+                episodes: data.number_of_episodes ?? 0,
+                posterURL: data.poster_path,
+                createdBy: "Admin",
+                isGL: true,
+            }
+        })
+
+        await prisma.onboardingShow.create({
+            data: {
+                showId: show.id,
+                position: i + 1
+            }
+        })
+
+        console.log(`Added : ${show.title}`);
+    }
+
     console.log("Completed adding shows for onboarding");
 }
 

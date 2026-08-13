@@ -58,19 +58,44 @@ model PasswordResetToken{
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
+enum ShowSource {
+  TMDB
+  MANUAL
+}
+
 model Show{
-  id            String @id @default(uuid())
-  title         String
-  overview      String?
-  releaseYear   Int
-  genres        String[] @default([])
-  episodes      Int
-  posterURL     String?
-  createdBy     String
-  createdAt     DateTime @default(now())
+  id              String @id @default(uuid())
+ 
+  tmdbId          Int? @unique
+  title           String
+  originalTitle   String?
+  overview        String?
+  releaseYear     Int
+  genres          String[] @default([])
+  seasons         Int?
+  episodes        Int?
+  posterURL       String?
+  createdBy       String
+  createdAt       DateTime @default(now())
+
+  isGL            Boolean @default(true)
+  source          ShowSource @default(TMDB)
+
 
   watchlistShowsItems WatchlistShowsItem[]
+
+  onboardingShows OnboardingShow[]
 }
+
+model OnboardingShow{
+  id              String @id @default(uuid())
+  showId          String @unique
+  position        Int
+  active          Boolean @default(true)
+
+  show Show @relation(fields: [showId], references: [id], onDelete: Cascade )
+}
+
 
 model Movies{
   id            String @id @default(uuid())
@@ -85,7 +110,7 @@ model Movies{
   watchlistMoviesItems WatchlistMoviesItem[]
 }
 
-enum WatchlistStatus{
+enum WatchlistStatus {
   PLANNED
   WATCHING
   COMPLETED
