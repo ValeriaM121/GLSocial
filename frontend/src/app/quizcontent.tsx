@@ -126,6 +126,7 @@ export default function quizContent(){
                 status: "PLANNED"
             }))
             await BackendCalls('watchListShow/watchListShow','POST', {show: showlistSetup});
+            await BackendCalls('userInfo/updateCompletedOnboarding','PATCH');
             router.replace('/(tabs)/homepage/homepage');
         } catch (error) {
             if(error instanceof Error){

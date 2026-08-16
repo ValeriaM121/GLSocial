@@ -1,4 +1,4 @@
-import {View, Text, TextInput, StyleSheet, TouchableOpacity, Image, TouchableWithoutFeedback, Keyboard, KeyboardAvoidingView, Platform, ScrollView} from 'react-native';
+import { View, Text, TextInput, StyleSheet, TouchableOpacity, Image, TouchableWithoutFeedback, Keyboard, KeyboardAvoidingView, Platform, ScrollView} from 'react-native';
 import { useState } from 'react'
 import { Link, router } from 'expo-router'
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -7,23 +7,6 @@ import * as SecureStore from "expo-secure-store"
 import { GoogleSignin, isErrorWithCode, isSuccessResponse, statusCodes } from "@react-native-google-signin/google-signin"
 import { validateLogin } from "../utils/validateLogin"
 import * as Device from 'expo-device';
-/*type formtype = {email: string, password: string};
-    
-const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&$#])[A-Za-z\d@$!%*?&#]{8,50}$/;
-    
-export const validateLogin = (form: formtype) =>{
-    if(!form.email || !form.password){
-        return "All fields needs to be filled";
-    }
-    if(!emailRegex.test(form.email)){
-        return "Invalid email input";
-    }
-    if(!passwordRegex.test(form.password)){
-        return "Invalid Password";
-    }
-}*/
-
 
 export default function Login(){
     const styles = StyleSheet.create({
@@ -84,8 +67,6 @@ export default function Login(){
     const [hidePassword, setHidePassword] = useState<boolean>(true);
 
     const [errorMessage, setErrorMessage] = useState<string>('');
-    //const[loading, setLoading] = useState<boolean>(false);
-    //const[token, setToken] = useState<string>('');
     const baseURL = process.env.EXPO_PUBLIC_API_URL;
     const [loggingIn, setLoggingIn] = useState<boolean>(false);
     const [googleSigningUp, setGoogleSigningUp] = useState<boolean>((false));
@@ -122,8 +103,16 @@ export default function Login(){
                 });
                 await SecureStore.setItemAsync('token', data.token);
                 await SecureStore.setItemAsync('refreshToken', data.refreshToken);
+
+                if(data.data.user.completedOnboarding === false){
+                    router.replace('/quizcontent');
+                    setLoggingIn(false);
+                    return;
+                }
+
                 router.replace('/(tabs)/homepage/homepage');
                 setLoggingIn(false);
+                return;
             }else{
                 setErrorMessage(data.message);
                 setLoggingIn(false);
@@ -164,13 +153,20 @@ export default function Login(){
                         if(backendResponse.ok){
                             await SecureStore.setItemAsync('token', data.token);
                             await SecureStore.setItemAsync('refreshToken', data.refreshToken);
-                            if(data.isNewUser){
+
+                            if(data.username === null){
                                 router.replace('/googleUsername');
                                 setGoogleSigningUp(false);
-                            }else{
-                                router.replace('/(tabs)/homepage/homepage');
-                                setGoogleSigningUp(false);
+                                return;
                             }
+                            if(data.completedOnboarding === false){
+                                router.replace('/quizcontent');
+                                setGoogleSigningUp(false);
+                                return;
+                            }
+                            router.replace('/(tabs)/homepage/homepage');
+                            setGoogleSigningUp(false);
+                            return;
                         }else{
                             setGoogleErrorMessage(data.message);
                             setGoogleSigningUp(false);
