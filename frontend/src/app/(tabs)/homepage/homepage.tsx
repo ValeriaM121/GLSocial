@@ -1,9 +1,7 @@
 import { View, Text, StyleSheet, ScrollView } from 'react-native'
 import { useState, useEffect } from 'react'
-import { Link, router, Stack } from 'expo-router'
 import { SafeAreaView } from 'react-native-safe-area-context'
-import * as SecureStore from "expo-secure-store";
-import { RefreshToken } from '@/utils/refreshToken';
+import { BackendCalls } from '@/utils/backendCalls';
 
 export default function HomePage(){
     const styles = StyleSheet.create({
@@ -21,8 +19,7 @@ export default function HomePage(){
             paddingHorizontal: 20
         }
     })
-    const baseURL = process.env.EXPO_PUBLIC_API_URL
-    const [email, setEmail] = useState<string>("");
+
     const [username, setUsername] = useState<string>("");
     const[errorMessage, setErrorMessage] = useState<string>("");
 
@@ -30,47 +27,18 @@ export default function HomePage(){
         const getUsername = async() =>{
             setErrorMessage('');
             try {
-                const token = await SecureStore.getItemAsync('token');
-                const response = await fetch(`${baseURL}userInfo/getUsername`,{
-                    method:"GET",
-                    headers: {Authorization: `Bearer ${token}`}
-                });
-                const data = await response.json();
-
-                if(response.ok){
-                    setUsername(data.username);
-                    return;
-                }
-
-                if(response.status===401){
-                    console.log(response.status);
-                    const result = await RefreshToken();
-                    if(!result){
-                        return;
-                    }
-                    try{
-                        const newResponse = await fetch(`${baseURL}userInfo/getUsername`,{
-                            method:"GET",
-                            headers: {Authorization: `Bearer ${result.newToken}`}
-                        });
-                        const newData = await newResponse.json();
-                        if(newResponse.ok){
-                            setUsername(newData.username);
-                        }else{
-                            setErrorMessage(newData.message);
-                        }
-                    }catch(error){
-                        console.error(`Error with getting user's email ${error}`);
-                        setErrorMessage("Internal server error with getting user's info");
-                    }
-                    return;
-                }
-                setErrorMessage(data.message);
+                const result = await BackendCalls('userInfo/getUsername','GET');
+                setUsername(result.username);
+                return;
             } catch (error) {
-                console.error(`Error getting user's email: ${error}`);
-                setErrorMessage("Internal sever error");
+                if(error instanceof Error){
+                    setErrorMessage(error.message);
+                }else{
+                    console.error(`Something went wrong: ${error}`);
+                    setErrorMessage(`Something failed. Please try again later.`);
+                }
             }
-        }; 
+        }
         getUsername();
     },[]);
 

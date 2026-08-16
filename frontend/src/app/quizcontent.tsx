@@ -2,8 +2,7 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image } from 'rea
 import { useState, useEffect } from 'react'
 import { router } from 'expo-router'
 import { SafeAreaView } from 'react-native-safe-area-context'
-import * as SecureStore from "expo-secure-store";
-import { RefreshToken } from "@/utils/refreshToken"
+import { BackendCalls } from '@/utils/backendCalls';
 
 export default function quizContent(){
     const styles = StyleSheet.create({
@@ -81,7 +80,6 @@ export default function quizContent(){
         show: Show,
         showId: string
     }
-    const baseURL = process.env.EXPO_PUBLIC_API_URL;
     
     const [showData, setShowData] = useState<Show[]>([]);
     const [showList, setShowList] = useState<Show[]>([]);
@@ -90,58 +88,27 @@ export default function quizContent(){
     useEffect(() =>{
         const onBoarding = async()=>{
             try {
-                const token = await SecureStore.getItemAsync('token');
-                const response = await fetch(`${baseURL}onBoarding/getOnBoarding`,{
-                    method: "GET",
-                    headers: {Authorization: `Bearer ${token}`}
-                });
-
-                const data = await response.json();
-
-                if(response.ok){
-                    const shows = data.data.map((item:onBoarding) => ({
-                        id: item.show.id,
-                        title: item.show.title,
-                        originalTitle: item.show.originalTitle,
-                        posterURL: item.show.posterURL
-                    }))
-                    setShowData(shows);
-                    return;
-                }
-                if(response.status === 401){
-                    const result = RefreshToken();
-                    if(!result){
-                        return;
-                    }
-                    const secondResponse = await fetch(`${baseURL}onBoarding/getOnBoarding`,{
-                        method: "GET",
-                        headers: {Authorization: `Bearer ${token}`}
-                    })
-
-                    const secondData = await secondResponse.json();
-                    if(secondResponse.ok){
-                        const secondShow = secondData.data.map((item:onBoarding) =>({
-                            id: item.show.id,
-                            title: item.show.title,
-                            originalTitle: item.show.originalTitle,
-                            posterURL: item.show.posterURL
-                        }))
-                        setShowData(secondShow);
-                        return;
-                    }else{
-                        console.error(`Failed to refresh`);
-                        return;
-                    }
-                }
-                console.error(`Failed to get onboarding information. From database`);
-
+                const result = await BackendCalls('onBoarding/getOnBoarding', 'GET');
+                const shows = result.data.map((item:onBoarding) => ({
+                    id: item.show.id,
+                    title: item.show.title,
+                    originalTitle: item.show.originalTitle,
+                    posterURL: item.show.posterURL
+                }));
+                setShowData(shows);
+                return;
             } catch (error) {
-                console.error(`Failed to onBoard: ${error}`);
-            }   
+                if(error instanceof Error){
+                    console.error(error.message);
+                }
+                else{
+                    console.error(`Something went wrong: ${error}`);
+                }
+            }
         }
-        onBoarding()
+        onBoarding();
     },[]);
-
+   
     const handleClickingShow = (show:Show) =>{
         const exists = showList.find(series => series.id === show.id);
         if(exists){
@@ -151,66 +118,29 @@ export default function quizContent(){
         }
     }
 
-    const handleNext = async() => {
+    const handleNext = async() =>{
         setErrorMessage('');
-
         try {
-            const showListSetup = showList.map((item)=> ({
+            const showlistSetup = showList.map((item)=>({
                 showID: item.id,
                 status: "PLANNED"
-            }));
-
-            const token = await SecureStore.getItemAsync('token');
-            const response = await fetch(`${baseURL}watchListShow/watchListShow`,{
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${token}`
-                },
-                body: JSON.stringify({
-                    show: showListSetup
-                })
-            });
-
-            const data = await response.json();
-
-            if(response.ok){
-                router.replace('/(tabs)/homepage/homepage');
-            }
-            if(response.status === 401){
-                const result = RefreshToken();
-                if(!result){
-                    return;
-                }
-                const secondResponse = await fetch(`${baseURL}watchListShow/watchListShow`,{
-                    method:"POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                        "Authorization": `Bearer ${token}`
-                    },
-                    body: JSON.stringify({
-                        show: showListSetup
-                    })
-                });
-                const secondData = await secondResponse.json();
-                if(secondResponse.ok){
-                    router.replace('/(tabs)/homepage/homepage');
-                }else{
-                    setErrorMessage(secondData.message);
-                }
-            }
-            setErrorMessage(data.message);
+            }))
+            await BackendCalls('watchListShow/watchListShow','POST', {show: showlistSetup});
+            router.replace('/(tabs)/homepage/homepage');
         } catch (error) {
-            console.error(`Error adding shows to watchlist: ${error}`);
-            setErrorMessage("There was an issue adding shows to watchlist please try again later");
+            if(error instanceof Error){
+                setErrorMessage(error.message);
+            }else{
+                console.error(`Something went wrong: ${error}`)
+            }
         }
     }
 
     return(
         <SafeAreaView style={styles.safeArea}>
             <ScrollView contentContainerStyle = {styles.container}>
-                    <Text style={{color:"white", fontSize:28, fontWeight: 'bold'}}> May you please choose show you are already watching? Or planning on watching?</Text>
-                    <View style={styles.showGrid}>
+                <Text style={{color:"white", fontSize:28, fontWeight: 'bold'}}> May you please choose show you are already watching? Or planning on watching?</Text>
+                <View style={styles.showGrid}>
                     {showData.map((item, index) => {
                         const posterUri = item.posterURL
                             ? `https://image.tmdb.org/t/p/w500${item.posterURL}`
@@ -282,12 +212,7 @@ export default function quizContent(){
                     
                     }
                     {errorMessage ? <Text style={{color:"red"}}>{errorMessage} </Text> : null}
-                    
-                    {/*<Link href="/(tabs)/homepage/homepage" push asChild>*/}
-                        {/*<TouchableOpacity style={styles.nextButton} onPress={handleNext}>
-                            <Text style={{color:"white"}}> next</Text>
-                        </TouchableOpacity>*/}
-                    {/*</Link> */}              
+                                  
             </ScrollView>
         </SafeAreaView>
     )

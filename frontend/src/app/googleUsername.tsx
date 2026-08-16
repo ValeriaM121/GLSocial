@@ -2,8 +2,8 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput } from 
 import { useState } from 'react'
 import { router } from 'expo-router'
 import { SafeAreaView } from 'react-native-safe-area-context'
-import * as SecureStore from "expo-secure-store";
 import {validateUsername} from "@/utils/validateUsername";
+import { BackendCalls } from '@/utils/backendCalls';
 
 export default function GoogleUsername(){
     const styles = StyleSheet.create({
@@ -47,8 +47,6 @@ export default function GoogleUsername(){
 
     const[username, setUsername] = useState<string>("");
     const [errorMessage, setErrorMessage] = useState<string>("");
-    const baseURL = process.env.EXPO_PUBLIC_API_URL;
-
 
     const handleAddUsername = async() =>{
         setErrorMessage("");
@@ -57,32 +55,22 @@ export default function GoogleUsername(){
             setErrorMessage(checkUsername);
             return;
         }
-    
-        try{
-            const token = await SecureStore.getItemAsync('token');
-            const response = await fetch(`${baseURL}userInfo/updateUsername`,{
-                method: "PATCH",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${token}`
-                },
-                credentials: "include",
-                body: JSON.stringify({
-                    username: username
-                })
-            });
-            const data = await response.json();
-            if(response.ok){
-                setUsername('');
-                router.replace("/quizcontent");
+        
+        try {
+            await BackendCalls('userInfo/updateUsername','PATCH',{username:username});
+            setUsername("");
+            router.replace('/quizcontent');
+        } catch(error) {
+            if(error instanceof Error){
+                setErrorMessage(error.message);
+                console.error(`Failed with calling backend for reason: ${error.message}`);
             }else{
-                setUsername('');
-                setErrorMessage(data.message);
+                setErrorMessage('Something went wrong.');
+                console.error(`something went wrong: ${error}`);
             }
-        }catch(error){
-            console.error(`Failed to update user's username: ${error}`);
-            setErrorMessage("Failed to add username. Please try again later");
         }
+        
+
     }
 
     return(
