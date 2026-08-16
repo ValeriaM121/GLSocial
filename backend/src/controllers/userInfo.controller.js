@@ -175,10 +175,26 @@ const updatePassword = async (req,res) =>{
     }
 }
 
+const updateOnboarding = async(req,res) =>{
+    try {
+        await prisma.user.update({
+            where:{id: req.user.id},
+            data:{
+                completedOnboarding: true
+            }
+        })
+        return res.status(200).json({message: "Successfully updated completedOnboarding"});
+    } catch (error) {
+        console.error(`Failed to change completedOnboarding: ${error}`);
+        return res.status(500).json({message: "Internal server error. Please try again later"});
+    }
+}
+
 export {
     getUsername,
     updateUsername,
     getEmail,
     updateEmail,
-    updatePassword
+    updatePassword,
+    updateOnboarding
 }

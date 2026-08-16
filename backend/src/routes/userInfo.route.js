@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import{ getUsername, getEmail, updateUsername, updateEmail, updatePassword} from '../controllers/userInfo.controller.js'
+import{ getUsername, getEmail, updateUsername, updateEmail, updatePassword,updateOnboarding } from '../controllers/userInfo.controller.js'
 import { authMiddleware } from '../middleware/authTokens.js';
 import { APILimit } from '../middleware/rateLimiters.js';
 const router = Router();
@@ -12,5 +12,6 @@ router.get('/getEmail', getEmail);
 router.patch('/updateUsername', updateUsername);
 router.patch('/updateEmail', updateEmail);
 router.patch('/updatePassword', updatePassword);
+router.patch('/updateCompletedOnboarding', updateOnboarding);
 
 export default router

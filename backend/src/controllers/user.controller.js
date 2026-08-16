@@ -118,7 +118,8 @@ const registerUser = async(req, res) =>{
             data: {
                 user:{ 
                     username: user.username, 
-                    email: user.email
+                    email: user.email,
+                    completedOnboarding: user.completedOnboarding
                 } 
             },
             token,
@@ -156,7 +157,7 @@ const googleLogin = async(req, res)=>{
                     email: googleUser.email,
                     googleId,
                     name: googleUser.name,
-                    avatar: googleUser.picture
+                    avatar: googleUser.picture,
                 }
             });
             userStatus = true;
@@ -166,7 +167,7 @@ const googleLogin = async(req, res)=>{
                 where: {
                     id: user.id
                 },
-                data:{
+                data:{ 
                     googleId,
                     name: googleUser.name,
                     avatar: googleUser.picture
@@ -181,7 +182,9 @@ const googleLogin = async(req, res)=>{
             message: "User was successful with logging in with Google",
             isNewUser: userStatus,
             token,
-            refreshToken: newRefreshToken
+            refreshToken: newRefreshToken,
+            completedOnboarding: user.completedOnboarding,
+            username: user.username
         });
         
     } catch (error) {
@@ -223,7 +226,9 @@ const loginUser = async(req, res)=>{
             message: "User successfully logged in!",
             data: {
                 user:{
-                    email: userExist.email
+                    email: userExist.email,
+                    username: userExist.username,
+                    completedOnboarding: userExist.completedOnboarding
                 }
             },
             token,
