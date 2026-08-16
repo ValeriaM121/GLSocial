@@ -23,21 +23,22 @@ export default function HomePage(){
     })
     const baseURL = process.env.EXPO_PUBLIC_API_URL
     const [email, setEmail] = useState<string>("");
+    const [username, setUsername] = useState<string>("");
     const[errorMessage, setErrorMessage] = useState<string>("");
 
     useEffect(()=>{
-        const getEmail = async() =>{
+        const getUsername = async() =>{
             setErrorMessage('');
             try {
                 const token = await SecureStore.getItemAsync('token');
-                const response = await fetch(`${baseURL}userInfo/getEmail`,{
+                const response = await fetch(`${baseURL}userInfo/getUsername`,{
                     method:"GET",
                     headers: {Authorization: `Bearer ${token}`}
                 });
                 const data = await response.json();
 
                 if(response.ok){
-                    setEmail(data.email);
+                    setUsername(data.username);
                     return;
                 }
 
@@ -48,13 +49,13 @@ export default function HomePage(){
                         return;
                     }
                     try{
-                        const newResponse = await fetch(`${baseURL}userInfo/getEmail`,{
+                        const newResponse = await fetch(`${baseURL}userInfo/getUsername`,{
                             method:"GET",
                             headers: {Authorization: `Bearer ${result.newToken}`}
                         });
                         const newData = await newResponse.json();
                         if(newResponse.ok){
-                            setEmail(newData.email);
+                            setUsername(newData.username);
                         }else{
                             setErrorMessage(newData.message);
                         }
@@ -70,14 +71,14 @@ export default function HomePage(){
                 setErrorMessage("Internal sever error");
             }
         }; 
-        getEmail();
+        getUsername();
     },[]);
 
     return(
         <SafeAreaView style={styles.safeArea}>
             <ScrollView contentContainerStyle = {styles.container}>
                 <Text style={{color:"white"}}> This is the homepage.</Text>
-                <Text style={{color: "blue"}}>User email is: {email}</Text>
+                <Text style={{color: "blue"}}>User username is: {username}</Text>
                 {errorMessage ? <Text style={{color:"red"}}>{errorMessage}</Text> : null}
             </ScrollView>
         </SafeAreaView>

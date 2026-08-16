@@ -2,7 +2,18 @@ import { prisma } from "../config/database.js"
 import bcrypt from "bcryptjs"
 
 const getUsername = async(req, res)=>{
-    try{
+    try {
+        if(!req.user.username){
+            return res.status(400).json({message: "Username is missing"});
+        }
+        return res.status(200).json({message: "Successful getting user's username", username: req.user.username});
+        
+    } catch (error) {
+        console.error(`Get username error: ${error}`);
+        return res.status(500).json({message: "Internal Server Error"});
+    }
+    
+    /*try{
         const userId = req.user.id;
         const user = await prisma.user.findUnique({
             where: {id: userId}
@@ -11,32 +22,25 @@ const getUsername = async(req, res)=>{
         if(!user){
             return res.status(400).json({message: "User was not found"});
         };
-        return res.status(200).json({message: "Successful", username: user.username})
+        return res.status(200).json({message: "Successful", username: req.user.username})
 
     }catch(error){
         console.error(`Get username error: ${error}`)
         return res.status(500).json({message: "Internal Server Error"})
-    }   
+    }   */
 }
 
 const updateUsername = async(req, res) =>{
     try{
-        const userId = req.user.id;
+        //const userId = req.user.id;
         const { username } = req.body;
 
-        const user = await prisma.user.findUnique({
-            where: {id: userId}
-        });
-        
-        if(!user){
-            return res.status(400).json({message: "User was not found"});
-        }
 
         if(!username){
             return res.status(400).json({message: "Need to fill up the field"});
         }
         
-        if(user.username === username){
+        if(req.user.username === username){
             return res.status(400).json({message: "This is your current username"});
         }
 
@@ -55,7 +59,7 @@ const updateUsername = async(req, res) =>{
         
         await prisma.user.update({
             where:{
-                id: userId
+                id: req.user.id
             },
             data:{
                 username
@@ -72,14 +76,11 @@ const updateUsername = async(req, res) =>{
 
 const getEmail = async(req,res)=>{
     try{
-        const userId = req.user.id;
-        const user = await prisma.user.findUnique({
-            where: {id: userId}
-        });
-        if(!user){
-            return res.status(400).json({message:"User was not found"});
+        if(!req.user.email){
+            return res.status(400).json({message: "Email is missing"});
         }
-        return res.status(200).json({message: "Successful in getting User's email", email: user.email})
+
+        return res.status(200).json({message: "Successful in getting User's email", email: req.user.email})
 
     }catch(error){
         console.error(`Error in getting user email: ${error}`)
@@ -89,7 +90,7 @@ const getEmail = async(req,res)=>{
 
 const updateEmail = async (req,res)=>{
     try{
-        const userId = req.user.id;
+        //const userId = req.user.id;
         const { email } = req.body;
 
         if(!email){
@@ -98,15 +99,7 @@ const updateEmail = async (req,res)=>{
 
         const lowerEmail = email.toLowerCase();
 
-        const user = await prisma.user.findUnique({
-            where: {id: userId}
-        })
-
-        if(!user){
-            return res.status(400).json({message: "User was not found"});
-        }
-
-        if(user.email === lowerEmail){
+        if(req.user.email === lowerEmail){
             return res.status(400).json({message: "This is the email you are currently using"});
         }
 
@@ -123,7 +116,7 @@ const updateEmail = async (req,res)=>{
             return res.status(400).json({message: "Invalid email"});
         }
         await prisma.user.update({
-            where:{id:userId},
+            where:{id:req.user.id},
             data:{
                 email: lowerEmail
             }
@@ -138,21 +131,14 @@ const updateEmail = async (req,res)=>{
 
 const updatePassword = async (req,res) =>{
     try{
-        const userId = req.user.id;
+        //const userId = req.user.id;
         const { currentPassword, newPassword, confirmNewPassword } = req.body;
         if( !currentPassword || !newPassword || !confirmNewPassword){
             return res.status(400).json({message: "All fields needs to be filled"});
         }
 
-        const user = await prisma.user.findUnique({
-            where: {id: userId}
-        });
 
-        if(!user){
-            return res.status(400).json({message: "No User Found"});
-        }
-
-        const compareCurrPass = await bcrypt.compare(currentPassword, user.password);
+        const compareCurrPass = await bcrypt.compare(currentPassword, req.user.password);
         if(!compareCurrPass){
             return res.status(400).json({message: "Current password is incorrect"});
         }
@@ -174,7 +160,7 @@ const updatePassword = async (req,res) =>{
         const hashedNewPassword = await bcrypt.hash(newPassword,salt);
 
         await prisma.user.update({
-            where: {id:userId},
+            where: {id:req.user.id},
             data: {
                 password: hashedNewPassword
             }

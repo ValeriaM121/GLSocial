@@ -129,6 +129,8 @@ model WatchlistShowsItem{
 
   user User @relation(fields: [userID], references: [id], onDelete: Cascade)
   show Show @relation(fields: [showID], references: [id], onDelete: Cascade )
+
+  @@unique([userID, showID])
 }
 
 model WatchlistMoviesItem{

@@ -30,7 +30,7 @@ const generateRefreshToken = async(userId, deviceName) => {
             })
             return { newRefreshToken }
         }catch(error){
-            if(error.code === "P2002"){
+            if(error instanceof prisma.PrismaClientKnownRequestError && error.code === "P2002"){
                 newRefreshToken = crypto.randomBytes(32).toString("hex");
                 hashRefreshToken = crypto.createHash("sha256").update(newRefreshToken).digest("hex");
                 expireRefreshToken = new Date(Date.now() + refreshTokenExpirationDays * 24 * 60 * 60 * 1000);
@@ -258,7 +258,7 @@ const generateResetToken = async(userId) =>{
             return { resetToken }
 
         }catch(error){
-            if(error.code === "P2002"){
+            if(error instanceof prisma.PrismaClientKnownRequestError && error.code === "P2002"){
                 resetToken = crypto.randomBytes(32).toString("hex");
                 hashResetToken = crypto.createHash("sha256").update(resetToken).digest("hex");
                 expireAt = new Date(Date.now() + 15 * 60 * 1000);

@@ -1,6 +1,6 @@
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image } from 'react-native'
 import { useState, useEffect } from 'react'
-import { Link, router, Stack } from 'expo-router'
+import { router } from 'expo-router'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import * as SecureStore from "expo-secure-store";
 import { RefreshToken } from "@/utils/refreshToken"
@@ -56,6 +56,15 @@ export default function quizContent(){
             borderWidth: 3,
             borderColor: '#636AE8FF',
             overflow: 'hidden'
+        },
+        disabledNextButton:{
+            backgroundColor: 'rgb(125, 131, 247)',
+            borderRadius: 25,
+            height: 45,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            width: '30%'
         }
     });
 
@@ -73,7 +82,6 @@ export default function quizContent(){
         showId: string
     }
     const baseURL = process.env.EXPO_PUBLIC_API_URL;
-    const [username, setUsername] = useState<string>("");
     
     const [showData, setShowData] = useState<Show[]>([]);
     const [showList, setShowList] = useState<Show[]>([]);
@@ -87,7 +95,9 @@ export default function quizContent(){
                     method: "GET",
                     headers: {Authorization: `Bearer ${token}`}
                 });
+
                 const data = await response.json();
+
                 if(response.ok){
                     const shows = data.data.map((item:onBoarding) => ({
                         id: item.show.id,
@@ -141,11 +151,65 @@ export default function quizContent(){
         }
     }
 
+    const handleNext = async() => {
+        setErrorMessage('');
+
+        try {
+            const showListSetup = showList.map((item)=> ({
+                showID: item.id,
+                status: "PLANNED"
+            }));
+
+            const token = await SecureStore.getItemAsync('token');
+            const response = await fetch(`${baseURL}watchListShow/watchListShow`,{
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    show: showListSetup
+                })
+            });
+
+            const data = await response.json();
+
+            if(response.ok){
+                router.replace('/(tabs)/homepage/homepage');
+            }
+            if(response.status === 401){
+                const result = RefreshToken();
+                if(!result){
+                    return;
+                }
+                const secondResponse = await fetch(`${baseURL}watchListShow/watchListShow`,{
+                    method:"POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        show: showListSetup
+                    })
+                });
+                const secondData = await secondResponse.json();
+                if(secondResponse.ok){
+                    router.replace('/(tabs)/homepage/homepage');
+                }else{
+                    setErrorMessage(secondData.message);
+                }
+            }
+            setErrorMessage(data.message);
+        } catch (error) {
+            console.error(`Error adding shows to watchlist: ${error}`);
+            setErrorMessage("There was an issue adding shows to watchlist please try again later");
+        }
+    }
+
     return(
         <SafeAreaView style={styles.safeArea}>
             <ScrollView contentContainerStyle = {styles.container}>
-                    <Text style={{color:"white", fontSize:28, fontWeight: 'bold'}}> May you please choose show you are already watching?</Text>
-                    {errorMessage ? <Text style={{color:"red"}}>{errorMessage} </Text> : null}
+                    <Text style={{color:"white", fontSize:28, fontWeight: 'bold'}}> May you please choose show you are already watching? Or planning on watching?</Text>
                     <View style={styles.showGrid}>
                     {showData.map((item, index) => {
                         const posterUri = item.posterURL
@@ -161,10 +225,12 @@ export default function quizContent(){
                                         </TouchableOpacity>
                                     )
                                     :
-                                    (
-                                        <View style={[styles.clickedPoster, { justifyContent: 'center', alignItems: 'center' }]}>
-                                            <Text style={{ color: '#FFFFFF80' }}>No image</Text>
-                                        </View>
+                                    (   <TouchableOpacity onPress={()=> handleClickingShow(item)}>
+                                            <View style={[styles.clickedPoster, { justifyContent: 'center', alignItems: 'center' }]}>
+                                                <Text style={{ color: '#FFFFFF80' }}>No image</Text>
+                                            </View>
+                                        </TouchableOpacity>
+                                        
                                     )
                                 )
                                 :
@@ -175,9 +241,11 @@ export default function quizContent(){
                                     )
                                     :
                                     (
-                                        <View style={[styles.poster, { justifyContent: 'center', alignItems: 'center' }]}>
-                                            <Text style={{ color: '#FFFFFF80' }}>No image</Text>
-                                        </View>
+                                        <TouchableOpacity onPress={()=> handleClickingShow(item)}>
+                                            <View style={[styles.poster, { justifyContent: 'center', alignItems: 'center' }]}>
+                                                <Text style={{ color: '#FFFFFF80' }}>No image</Text>
+                                            </View>
+                                        </TouchableOpacity>
                                     )
 
                                 }
@@ -202,12 +270,24 @@ export default function quizContent(){
                         })}
 
                     </View>
-                    
-                    <Link href="/(tabs)/homepage/homepage" push asChild>
-                        <TouchableOpacity style={styles.nextButton}>
+                    {showList.length > 0 ? 
+                        <TouchableOpacity style={styles.nextButton} onPress={handleNext}>
                             <Text style={{color:"white"}}> next</Text>
                         </TouchableOpacity>
-                    </Link>                
+                        
+                    :
+                        <TouchableOpacity style={styles.disabledNextButton} disabled={true}>
+                            <Text style={{color:"white"}}> next</Text>
+                        </TouchableOpacity>
+                    
+                    }
+                    {errorMessage ? <Text style={{color:"red"}}>{errorMessage} </Text> : null}
+                    
+                    {/*<Link href="/(tabs)/homepage/homepage" push asChild>*/}
+                        {/*<TouchableOpacity style={styles.nextButton} onPress={handleNext}>
+                            <Text style={{color:"white"}}> next</Text>
+                        </TouchableOpacity>*/}
+                    {/*</Link> */}              
             </ScrollView>
         </SafeAreaView>
     )

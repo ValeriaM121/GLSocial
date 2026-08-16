@@ -117,7 +117,6 @@ export default function SignUp(){
             const response = await fetch(`${baseURL}auth/register`,{
                 method: "POST",
                 headers: {"Content-Type": "application/json"},
-                credentials: "include",
                 body: JSON.stringify({
                     username: registerForm.username,
                     email: registerForm.email,
