@@ -41,7 +41,7 @@ export const ForgotPasswordLimit = rateLimit({
 
 export const GoogleLimit = rateLimit({
     windowMs: 15 * 60 * 1000, //15 minutes
-    limit: 5,
+    limit: 10,
     message:{
         message: "Too many attempts. Please try again later"
     },

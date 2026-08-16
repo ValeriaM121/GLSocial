@@ -117,7 +117,6 @@ export default function SignUp(){
             const response = await fetch(`${baseURL}auth/register`,{
                 method: "POST",
                 headers: {"Content-Type": "application/json"},
-                credentials: "include",
                 body: JSON.stringify({
                     username: registerForm.username,
                     email: registerForm.email,
@@ -187,7 +186,7 @@ export default function SignUp(){
                         
                         //console.log(data.isNewUser);
                         if(data.isNewUser){
-                            router.replace('/quizcontent');
+                            router.replace('/googleUsername');
                             setGoogleSigningUp(false);
                         }else{
                             router.replace('/(tabs)/homepage/homepage');

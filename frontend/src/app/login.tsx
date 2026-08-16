@@ -165,7 +165,7 @@ export default function Login(){
                             await SecureStore.setItemAsync('token', data.token);
                             await SecureStore.setItemAsync('refreshToken', data.refreshToken);
                             if(data.isNewUser){
-                                router.replace('/quizcontent');
+                                router.replace('/googleUsername');
                                 setGoogleSigningUp(false);
                             }else{
                                 router.replace('/(tabs)/homepage/homepage');

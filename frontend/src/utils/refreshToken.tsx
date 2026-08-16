@@ -2,6 +2,21 @@ import * as SecureStore from "expo-secure-store"
 import { Logout } from "../utils/logout"
 import * as Device from 'expo-device';
 
+/**
+ * Deals with refreshing token once the access token expires.
+ * For now if anything goes wrong it would just log user out. 
+ *  
+ * Possible improvement: if the user as network issues and not
+ * getting refresh token because of it. It would be annoything for
+ * user to deal with consistently logging the user out. So
+ * if were to change check reason why refresh fails and see if
+ * it's reasonable to log the user out.
+ * Also don't think i need to return refreshToken. But for now
+ * it stays
+ *  
+ * @returns a new access token and a new Refresh Token
+ */
+
 export const RefreshToken = async()=>{
     const baseURL = process.env.EXPO_PUBLIC_API_URL;
     const refreshToken = await SecureStore.getItemAsync('refreshToken');
