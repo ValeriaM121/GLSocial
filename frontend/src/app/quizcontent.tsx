@@ -152,7 +152,7 @@ export default function quizContent(){
                                 {findShow ? (
                                     posterUri ? (
                                         <TouchableOpacity onPress={()=> handleClickingShow(item)}>
-                                            <Image source={{ uri: posterUri }} style={styles.clickedPoster} />
+                                            <Image source={{ uri: posterUri }} style={styles.clickedPoster} alt={item.title}/>
                                         </TouchableOpacity>
                                     )
                                     :
@@ -167,7 +167,7 @@ export default function quizContent(){
                                 :
                                     posterUri ? (
                                         <TouchableOpacity onPress={()=> handleClickingShow(item)}>
-                                            <Image source={{ uri: posterUri }} style={styles.poster} />
+                                            <Image source={{ uri: posterUri }} style={styles.poster} alt={item.title}/>
                                         </TouchableOpacity>
                                     )
                                     :
@@ -188,18 +188,6 @@ export default function quizContent(){
                             
                         )
                     })}
-                    </View>
-                    <View>
-                        {showList.map((item)=>{
-                            return(
-                                <View key={item.id}>
-                                    <Text style={{color:"white"}}>
-                                        {item.title}
-                                    </Text>
-                                </View>
-                            )
-                        })}
-
                     </View>
                     {showList.length > 0 ? 
                         <TouchableOpacity style={styles.nextButton} onPress={handleNext}>
