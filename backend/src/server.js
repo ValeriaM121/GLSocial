@@ -6,7 +6,9 @@
 import "dotenv/config";
 import app from "./app.js";
 import dotenv from "dotenv";
+import { config } from "dotenv";
 
+config();
 
 app.get("/hello", (req,res)=>{
     res.json({message: "Hello World"});
@@ -16,3 +18,13 @@ app.get("/hello", (req,res)=>{
 app.listen(process.env.PORT, "0.0.0.0", () =>{
     console.log(`Server is running on PORT ${process.env.PORT}`);
 });
+
+
+/**
+ Should listen for:
+ - unhandledRejction
+ - uncaughtException
+ - SIGTERM
+ - SIGINT
+
+ */
